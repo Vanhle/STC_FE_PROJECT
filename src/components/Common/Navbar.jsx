@@ -1,16 +1,34 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { showToast } from "./Toast";
 
 const Navbar = ({ title = "Dashboard" }) => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Clear auth data (localStorage, sessionStorage, etc.)
-    localStorage.removeItem("authToken");
-    sessionStorage.removeItem("user");
-
-    // Redirect to login
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      await axios.post(
+        "http://localhost:8080/auth/logout",
+        {},
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : undefined,
+          },
+        }
+      );
+      showToast("Đăng xuất thành công!", { type: "success" });
+    } catch (error) {
+      showToast("Đăng xuất thất bại!", { type: "error" });
+    } finally {
+      // Xoá token
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("tokenExpiredAt");
+      // Điều hướng về login
+      navigate("/login");
+    }
   };
 
   return (

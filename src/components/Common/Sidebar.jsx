@@ -23,6 +23,12 @@ const Sidebar = () => {
       label: "Apartment",
       active: location.pathname.includes("/apartments"),
     },
+    {
+      path: "/dashboard/trash",
+      icon: "bi bi-trash",
+      label: "Thùng rác",
+      active: location.pathname.includes("/trash"),
+    },
   ];
 
   return (
