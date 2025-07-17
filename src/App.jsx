@@ -11,13 +11,16 @@ import OTPVerification from "./components/Auth/OTPVerification";
 import ProjectManagement from "./components/Management/ProjectManagement";
 import BuildingManagement from "./components/Management/BuildingManagement";
 import ApartmentManagement from "./components/Management/ApartmentManagement";
+import TrashManagement from "./components/Management/TrashManagement";
 import ProtectedRoute from "./components/Common/ProtectedRoute";
+import Toast from "./components/Common/Toast";
 import "./App.css";
 
 function App() {
   return (
     <Router>
       <div className="App">
+        <Toast />
         <Routes>
           {/* Auth Routes - Public */}
           <Route path="/login" element={<Login />} />
@@ -57,6 +60,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <ApartmentManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/trash"
+            element={
+              <ProtectedRoute>
+                <TrashManagement />
               </ProtectedRoute>
             }
           />

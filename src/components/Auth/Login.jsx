@@ -3,11 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../Layout/AuthLayout";
 import Input from "../Common/Input";
 import Button from "../Common/Button";
+import { showToast } from "../Common/Toast";
+import axios from "axios";
 
 const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
@@ -36,8 +38,8 @@ const Login = () => {
 
     // Basic validation
     const newErrors = {};
-    if (!formData.email) {
-      newErrors.email = "Email hoặc Username là bắt buộc";
+    if (!formData.username) {
+      newErrors.username = "Email hoặc Username là bắt buộc";
     }
     if (!formData.password) {
       newErrors.password = "Mật khẩu là bắt buộc";
@@ -50,29 +52,58 @@ const Login = () => {
     }
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Mock successful login - thay thế bằng API call thực tế
-      const mockUser = {
-        id: 1,
-        name: "Admin User",
-        email: formData.email,
-        role: "administrator",
-      };
-      const mockToken = "mock-jwt-token-" + Date.now();
-
-      // Store auth data
-      localStorage.setItem("authToken", mockToken);
-      localStorage.setItem("user", JSON.stringify(mockUser));
-
-      // Redirect to dashboard
-      navigate("/dashboard", { replace: true });
-    } catch (error) {
-      console.error("Login error:", error);
-      setErrors({
-        general: "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+      const response = await axios.post("http://localhost:8080/auth/login", {
+        username: formData.username,
+        password: formData.password,
       });
+      const result = response.data;
+
+      if (response.status === 200 && result.status === 200) {
+        // Thành công
+        showToast(result.message || "Đăng nhập thành công!", {
+          type: "success",
+        });
+        // Lưu token, refreshToken và expired time
+        localStorage.setItem("authToken", result.data.accessToken);
+        localStorage.setItem("refreshToken", result.data.refreshToken);
+        if (result.data.expiresIn) {
+          const expiredAt = Date.now() + result.data.expiresIn * 1000;
+          localStorage.setItem("tokenExpiredAt", expiredAt);
+        }
+        // Chuyển hướng
+        navigate("/dashboard", { replace: true });
+      } else if (result.status === 400 && Array.isArray(result.data)) {
+        // Lỗi validation
+        const fieldErrors = {};
+        result.data.forEach((err) => {
+          fieldErrors[err.field] = err.message;
+        });
+        setErrors(fieldErrors);
+        showToast(result.message || "Lỗi xác thực!", { type: "error" });
+      } else {
+        // Lỗi khác
+        setErrors({ general: result.message || "Đăng nhập thất bại." });
+        showToast(result.message || "Đăng nhập thất bại!", { type: "error" });
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const result = error.response.data;
+        if (result.status === 400 && Array.isArray(result.data)) {
+          // Lỗi validation
+          const fieldErrors = {};
+          result.data.forEach((err) => {
+            fieldErrors[err.field] = err.message;
+          });
+          setErrors(fieldErrors);
+          showToast(result.message || "Lỗi xác thực!", { type: "error" });
+        } else {
+          setErrors({ general: result.message || "Đăng nhập thất bại." });
+          showToast(result.message || "Đăng nhập thất bại!", { type: "error" });
+        }
+      } else {
+        setErrors({ general: "Không thể kết nối tới máy chủ." });
+        showToast("Không thể kết nối tới máy chủ!", { type: "error" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -94,12 +125,12 @@ const Login = () => {
 
         <Input
           type="text"
-          name="email"
+          name="username"
           placeholder="Email or Username"
-          value={formData.email}
+          value={formData.username}
           onChange={handleChange}
           icon="bi bi-envelope"
-          error={errors.email}
+          error={errors.username}
         />
 
         <Input
