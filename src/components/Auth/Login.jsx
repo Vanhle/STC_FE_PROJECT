@@ -88,7 +88,12 @@ const Login = () => {
     } catch (error) {
       if (error.response && error.response.data) {
         const result = error.response.data;
-        if (result.status === 400 && Array.isArray(result.data)) {
+        if (result.status === 401 && result.message === "Need to verify") {
+          showToast(result.message || "Bạn cần xác thực tài khoản!", {
+            type: "warning",
+          });
+          navigate("/verify-otp", { state: { email: formData.username } });
+        } else if (result.status === 400 && Array.isArray(result.data)) {
           // Lỗi validation
           const fieldErrors = {};
           result.data.forEach((err) => {

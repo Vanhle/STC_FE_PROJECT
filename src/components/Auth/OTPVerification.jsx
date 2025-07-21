@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "../Layout/AuthLayout";
 import Button from "../Common/Button";
+import axiosInstance from "../../api/axiosInstance";
+import { showToast } from "../Common/Toast";
 
 const OTPVerification = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -9,18 +11,27 @@ const OTPVerification = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
-
   const inputRefs = useRef([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Lấy email từ location state
+  const email = location.state?.email || "";
 
   useEffect(() => {
-    // Focus first input on mount
+    if (!email) {
+      // Nếu không có email, quay lại trang đăng ký
+      navigate("/register");
+    }
+  }, [email, navigate]);
+
+  useEffect(() => {
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
   }, []);
 
   useEffect(() => {
-    // Countdown timer for resend OTP
     if (resendTimer > 0) {
       const timer = setTimeout(() => {
         setResendTimer(resendTimer - 1);
@@ -32,31 +43,22 @@ const OTPVerification = () => {
   }, [resendTimer]);
 
   const handleChange = (index, value) => {
-    // Only allow numbers
     if (!/^\d*$/.test(value)) return;
-
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-
-    // Clear error when user starts typing
     if (error) setError("");
-
-    // Auto focus next input
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // Handle backspace
     if (e.key === "Backspace") {
       if (!otp[index] && index > 0) {
         inputRefs.current[index - 1]?.focus();
       }
-    }
-    // Handle paste
-    else if (e.key === "v" && (e.ctrlKey || e.metaKey)) {
+    } else if (e.key === "v" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       navigator.clipboard.readText().then((text) => {
         const pastedNumbers = text.replace(/\D/g, "").slice(0, 6);
@@ -65,8 +67,6 @@ const OTPVerification = () => {
           newOtp[i] = pastedNumbers[i] || "";
         }
         setOtp(newOtp);
-
-        // Focus last filled input or next empty input
         const nextIndex = Math.min(pastedNumbers.length, 5);
         inputRefs.current[nextIndex]?.focus();
       });
@@ -75,25 +75,33 @@ const OTPVerification = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const otpString = otp.join("");
     if (otpString.length !== 6) {
       setError("Vui lòng nhập đầy đủ 6 số");
       return;
     }
-
     setIsLoading(true);
     setError("");
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("OTP verification:", otpString);
-      // Handle successful verification here
-      // navigate('/dashboard');
-    } catch (error) {
-      setError("Mã OTP không chính xác. Vui lòng thử lại.");
-      console.error("OTP verification error:", error);
+      const payload = {
+        email: email,
+        otp: otpString,
+      };
+      const res = await axiosInstance.post("/auth/verifyotp", payload);
+      if (res.data && res.data.status === 200) {
+        showToast(res.data.message || "Xác thực OTP thành công!", {
+          type: "success",
+        });
+        navigate("/login");
+      } else {
+        showToast(res.data.message || "Xác thực OTP thất bại!", {
+          type: "error",
+        });
+      }
+    } catch (err) {
+      showToast(err.response?.data?.message || "Xác thực OTP thất bại!", {
+        type: "error",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -101,21 +109,26 @@ const OTPVerification = () => {
 
   const handleResendOTP = async () => {
     if (!canResend) return;
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.log("Resend OTP requested");
-
-      // Reset timer
-      setResendTimer(60);
-      setCanResend(false);
-      setOtp(["", "", "", "", "", ""]);
-
-      // Focus first input
-      inputRefs.current[0]?.focus();
+      const payload = { email };
+      const res = await axiosInstance.post("/auth/resendotp", payload);
+      if (res.data && res.data.status === 200) {
+        showToast(res.data.message || "Đã gửi lại mã OTP!", {
+          type: "success",
+        });
+        setResendTimer(60);
+        setCanResend(false);
+        setOtp(["", "", "", "", "", ""]);
+        inputRefs.current[0]?.focus();
+      } else {
+        showToast(res.data.message || "Gửi lại OTP thất bại!", {
+          type: "error",
+        });
+      }
     } catch (error) {
-      console.error("Resend OTP error:", error);
+      showToast(error.response?.data?.message || "Gửi lại OTP thất bại!", {
+        type: "error",
+      });
     }
   };
 
@@ -126,10 +139,9 @@ const OTPVerification = () => {
         <p className="text-muted mb-3">
           Chúng tôi đã gửi mã xác thực 6 số đến
           <br />
-          <strong>example@email.com</strong>
+          <strong>{email}</strong>
         </p>
       </div>
-
       <form onSubmit={handleSubmit}>
         {/* OTP Input Fields */}
         <div className="d-flex justify-content-center gap-2 mb-3">
@@ -155,13 +167,11 @@ const OTPVerification = () => {
             />
           ))}
         </div>
-
         {error && (
           <div className="alert alert-danger text-center py-2 mb-3">
             <small>{error}</small>
           </div>
         )}
-
         <div className="d-grid mb-3">
           <Button
             type="submit"
@@ -183,7 +193,6 @@ const OTPVerification = () => {
             )}
           </Button>
         </div>
-
         {/* Resend OTP */}
         <div className="text-center mb-3">
           {canResend ? (
@@ -198,7 +207,6 @@ const OTPVerification = () => {
             <span className="text-muted">Gửi lại mã sau {resendTimer}s</span>
           )}
         </div>
-
         <div className="text-center">
           <Link to="/login" className="text-muted text-decoration-none">
             ← Quay lại đăng nhập
