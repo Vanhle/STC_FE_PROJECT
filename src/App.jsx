@@ -14,6 +14,8 @@ import ApartmentManagement from "./components/Management/ApartmentManagement";
 import TrashManagement from "./components/Management/TrashManagement";
 import ProtectedRoute from "./components/Common/ProtectedRoute";
 import Toast from "./components/Common/Toast";
+import ResetPassword from "./components/Auth/ResetPassword";
+import ForgotPassword from "./components/Auth/ForgotPassword";
 import "./App.css";
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-otp" element={<OTPVerification />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Dashboard Routes - Protected */}
           <Route

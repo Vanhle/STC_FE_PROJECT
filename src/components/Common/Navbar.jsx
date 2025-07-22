@@ -1,26 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 import { showToast } from "./Toast";
 
 const Navbar = ({ title = "Dashboard" }) => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axiosInstance.get("/auth/aboutme");
+        if (res.data && res.data.status === 200) {
+          setUsername(res.data.data);
+        }
+      } catch (err) {
+        if (err.response && err.response.status === 401) {
+          showToast("Phiên đăng nhập đã hết hạn!", { type: "error" });
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("tokenExpiredAt");
+          navigate("/login");
+        }
+      }
+    };
+    fetchUser();
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-      await axios.post(
-        "http://localhost:8080/auth/logout",
-        {},
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : undefined,
-          },
-        }
-      );
+      await axiosInstance.post("/auth/logout", {});
       showToast("Đăng xuất thành công!", { type: "success" });
-    } catch (error) {
-      showToast("Đăng xuất thất bại!", { type: "error" });
     } finally {
       // Xoá token
       localStorage.removeItem("authToken");
@@ -58,17 +68,6 @@ const Navbar = ({ title = "Dashboard" }) => {
               aria-expanded="false"
               style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              {/* Notification Icon */}
-              <div className="position-relative me-3">
-                <i
-                  className="bi bi-bell text-muted"
-                  style={{ fontSize: "20px" }}
-                ></i>
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning">
-                  <span className="visually-hidden">unread messages</span>
-                </span>
-              </div>
-
               {/* User Avatar */}
               <div className="d-flex align-items-center">
                 <div
@@ -82,7 +81,7 @@ const Navbar = ({ title = "Dashboard" }) => {
                     className="fw-semibold text-dark"
                     style={{ fontSize: "14px" }}
                   >
-                    Admin User
+                    {username || "Admin User"}
                   </div>
                   <small className="text-muted">Administrator</small>
                 </div>
