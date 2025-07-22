@@ -14,87 +14,34 @@ const BuildingManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [buildings, setBuildings] = useState([]);
-
-  // Mock data - thay thế bằng API call thực tế
-  const mockBuildings = [
-    {
-      id: "#BLD001",
-      projectName: "Vinhomes Smart City",
-      buildingName: "Tòa nhà A1",
-      basementFloors: 2,
-      floors: 25,
-      apartments: 480,
-      status: "Hiển thị",
-      updateAt: "22/03/2025",
-    },
-    {
-      id: "#BLD002",
-      projectName: "Times City Park Hill",
-      buildingName: "Tòa nhà B2",
-      basementFloors: 3,
-      floors: 30,
-      apartments: 600,
-      status: "Ẩn",
-      updateAt: "21/03/2025",
-    },
-    {
-      id: "#BLD003",
-      projectName: "Royal City",
-      buildingName: "Tòa nhà C3",
-      basementFloors: 2,
-      floors: 28,
-      apartments: 560,
-      status: "Hiển thị",
-      updateAt: "20/03/2025",
-    },
-    {
-      id: "#BLD004",
-      projectName: "Khu đô thị Ecopark",
-      buildingName: "Tòa nhà D4",
-      basementFloors: 1,
-      floors: 20,
-      apartments: 400,
-      status: "Hiển thị",
-      updateAt: "19/03/2025",
-    },
-    {
-      id: "#BLD005",
-      projectName: "Chung cư Goldmark City",
-      buildingName: "Tòa nhà E5",
-      basementFloors: 2,
-      floors: 32,
-      apartments: 640,
-      status: "Ẩn",
-      updateAt: "18/03/2025",
-    },
-  ];
+  const [totalBuildings, setTotalBuildings] = useState(0);
 
   // Search form configuration
   const searchFields = [
     {
       name: "projectName",
-      placeholder: "Tìm theo tên dự án...",
+      placeholder: "Search by project name...",
       colSize: 4,
       icon: "bi bi-search",
-      label: "Tên dự án",
+      label: "Project Name",
     },
     {
       name: "buildingName",
-      placeholder: "Tìm theo tên tòa nhà...",
+      placeholder: "Search by building name...",
       colSize: 4,
       icon: "bi bi-search",
-      label: "Tên tòa nhà",
+      label: "Building Name",
     },
     {
       name: "status",
       type: "singleselect",
-      placeholder: "Chọn trạng thái...",
+      placeholder: "Select status...",
       colSize: 4,
-      label: "Trạng thái",
+      label: "Status",
       options: [
-        { value: "", label: "Tất cả trạng thái" },
-        { value: "Hiển thị", label: "👁️ Hiển thị" },
-        { value: "Ẩn", label: "🚫 Ẩn" },
+        { value: "", label: "All statuses" },
+        { value: "Visible", label: "👁️ Visible" },
+        { value: "Hidden", label: "🚫 Hidden" },
       ],
     },
   ];
@@ -111,41 +58,40 @@ const BuildingManagement = () => {
     },
     {
       key: "projectName",
-      label: "Tên dự án",
+      label: "Project Name",
       width: "180px",
     },
     {
       key: "buildingName",
-      label: "Tên tòa nhà",
+      label: "Building Name",
       width: "150px",
     },
     {
       key: "basementFloors",
-      label: "Số tầng hầm",
+      label: "Basement Floors",
       width: "100px",
       render: (value) => <span className="badge bg-secondary">{value}</span>,
     },
     {
       key: "floors",
-      label: "Số tầng",
+      label: "Floors",
       width: "80px",
       render: (value) => <span className="badge bg-info">{value}</span>,
     },
     {
       key: "apartments",
-      label: "Số căn hộ",
+      label: "Apartments",
       width: "90px",
       render: (value) => <span className="badge bg-primary">{value}</span>,
     },
     {
       key: "status",
-      label: "Trạng thái",
+      label: "Status",
       width: "100px",
       render: (value) => {
-        const statusClass =
-          value === "Hiển thị" ? "bg-success" : "bg-secondary";
+        const statusClass = value === "Visible" ? "bg-success" : "bg-secondary";
         const statusIcon =
-          value === "Hiển thị" ? "bi bi-eye" : "bi bi-eye-slash";
+          value === "Visible" ? "bi bi-eye" : "bi bi-eye-slash";
         return (
           <span
             className={`badge ${statusClass} d-flex align-items-center gap-1`}
@@ -159,39 +105,72 @@ const BuildingManagement = () => {
     },
   ];
 
-  // Load data effect
+  // Debounce search values to optimize API calls
+  const [debouncedSearchValues, setDebouncedSearchValues] =
+    useState(searchValues);
+
+  // Debounce effect for search values
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchValues(searchValues);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(timer);
+  }, [searchValues]);
+
+  // Load data effect with debounced search values
   useEffect(() => {
     loadBuildings();
-  }, [currentPage, searchValues]);
+  }, [currentPage, debouncedSearchValues]);
 
   const loadBuildings = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Check if user is authenticated
+      const token = localStorage.getItem("authToken");
+      const expiredAt = localStorage.getItem("tokenExpiredAt");
 
-      // Filter buildings based on search values
-      let filteredBuildings = mockBuildings;
+      if (!token || !expiredAt || Date.now() >= Number(expiredAt)) {
+        console.error("Authentication required");
+        setBuildings([]);
+        setTotalBuildings(0);
+        return;
+      }
 
-      if (searchValues.projectName) {
+      const response = await axiosInstance.get(
+        "http://localhost:8080/api/buildings/search?query=",
+        {
+          params: {
+            page: currentPage - 1, // Backend usually uses 0-based pagination
+            size: 10,
+            projectName: debouncedSearchValues.projectName || undefined,
+            buildingName: debouncedSearchValues.buildingName || undefined,
+            status: debouncedSearchValues.status || undefined,
+          },
+        }
+      );
+
+      // Filter buildings based on debounced search values
+      let filteredBuildings = response.data.buildings || response.data || [];
+      if (debouncedSearchValues.projectName) {
         filteredBuildings = filteredBuildings.filter((b) =>
           b.projectName
             .toLowerCase()
-            .includes(searchValues.projectName.toLowerCase())
+            .includes(debouncedSearchValues.projectName.toLowerCase())
         );
       }
 
-      if (searchValues.buildingName) {
+      if (debouncedSearchValues.buildingName) {
         filteredBuildings = filteredBuildings.filter((b) =>
           b.buildingName
             .toLowerCase()
-            .includes(searchValues.buildingName.toLowerCase())
+            .includes(debouncedSearchValues.buildingName.toLowerCase())
         );
       }
 
-      if (searchValues.status) {
+      if (debouncedSearchValues.status) {
         filteredBuildings = filteredBuildings.filter(
-          (b) => b.status === searchValues.status
+          (b) => b.status === debouncedSearchValues.status
         );
       }
 
@@ -249,7 +228,7 @@ const BuildingManagement = () => {
     <DashboardLayout title="BUILDING MANAGEMENT">
       {/* Header with Add Button */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h5 className="text-muted mb-0">Quản lý tòa nhà</h5>
+        <h5 className="text-muted mb-0">Building Management</h5>
         <button
           className="btn btn-primary"
           onClick={handleAdd}
@@ -262,7 +241,7 @@ const BuildingManagement = () => {
           }}
         >
           <i className="bi bi-plus-circle me-2"></i>
-          Thêm tòa nhà
+          Add Building
         </button>
       </div>
 
@@ -284,7 +263,7 @@ const BuildingManagement = () => {
         onEdit={handleEdit}
         onDelete={handleDelete}
         isLoading={isLoading}
-        emptyMessage="Không tìm thấy tòa nhà nào"
+        emptyMessage="No buildings found"
       />
 
       {/* Pagination */}
