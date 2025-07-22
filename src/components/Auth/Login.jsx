@@ -39,10 +39,10 @@ const Login = () => {
     // Basic validation
     const newErrors = {};
     if (!formData.username) {
-      newErrors.username = "Email hoặc Username là bắt buộc";
+      newErrors.username = "Email or Username is required";
     }
     if (!formData.password) {
-      newErrors.password = "Mật khẩu là bắt buộc";
+      newErrors.password = "Password is required";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -59,55 +59,55 @@ const Login = () => {
       const result = response.data;
 
       if (response.status === 200 && result.status === 200) {
-        // Thành công
-        showToast(result.message || "Đăng nhập thành công!", {
+        // Success
+        showToast(result.message || "Login successful!", {
           type: "success",
         });
-        // Lưu token, refreshToken và expired time
+        // Save token, refreshToken and expired time
         localStorage.setItem("authToken", result.data.accessToken);
         localStorage.setItem("refreshToken", result.data.refreshToken);
         if (result.data.expiresIn) {
           const expiredAt = Date.now() + result.data.expiresIn * 1000;
           localStorage.setItem("tokenExpiredAt", expiredAt);
         }
-        // Chuyển hướng
+        // Redirect
         navigate("/dashboard", { replace: true });
       } else if (result.status === 400 && Array.isArray(result.data)) {
-        // Lỗi validation
+        // Validation error
         const fieldErrors = {};
         result.data.forEach((err) => {
           fieldErrors[err.field] = err.message;
         });
         setErrors(fieldErrors);
-        showToast(result.message || "Lỗi xác thực!", { type: "error" });
+        showToast(result.message || "Validation error!", { type: "error" });
       } else {
-        // Lỗi khác
-        setErrors({ general: result.message || "Đăng nhập thất bại." });
-        showToast(result.message || "Đăng nhập thất bại!", { type: "error" });
+        // Other error
+        setErrors({ general: result.message || "Login failed." });
+        showToast(result.message || "Login failed!", { type: "error" });
       }
     } catch (error) {
       if (error.response && error.response.data) {
         const result = error.response.data;
         if (result.status === 401 && result.message === "Need to verify") {
-          showToast(result.message || "Bạn cần xác thực tài khoản!", {
+          showToast(result.message || "You need to verify your account!", {
             type: "warning",
           });
           navigate("/verify-otp", { state: { email: formData.username } });
         } else if (result.status === 400 && Array.isArray(result.data)) {
-          // Lỗi validation
+          // Validation error
           const fieldErrors = {};
           result.data.forEach((err) => {
             fieldErrors[err.field] = err.message;
           });
           setErrors(fieldErrors);
-          showToast(result.message || "Lỗi xác thực!", { type: "error" });
+          showToast(result.message || "Validation error!", { type: "error" });
         } else {
-          setErrors({ general: result.message || "Đăng nhập thất bại." });
-          showToast(result.message || "Đăng nhập thất bại!", { type: "error" });
+          setErrors({ general: result.message || "Login failed." });
+          showToast(result.message || "Login failed!", { type: "error" });
         }
       } else {
-        setErrors({ general: "Không thể kết nối tới máy chủ." });
-        showToast("Không thể kết nối tới máy chủ!", { type: "error" });
+        setErrors({ general: "Unable to connect to server." });
+        showToast("Unable to connect to server!", { type: "error" });
       }
     } finally {
       setIsLoading(false);
@@ -117,7 +117,7 @@ const Login = () => {
   return (
     <AuthLayout>
       <div className="text-center mb-4">
-        <h2 className="fw-bold text-dark mb-2">Xin chào</h2>
+        <h2 className="fw-bold text-dark mb-2">Hello</h2>
         <p className="text-muted">Welcome Back</p>
       </div>
 
@@ -162,7 +162,7 @@ const Login = () => {
                   className="spinner-border spinner-border-sm me-2"
                   role="status"
                 ></span>
-                Đang đăng nhập...
+                Logging in...
               </>
             ) : (
               "Login"
