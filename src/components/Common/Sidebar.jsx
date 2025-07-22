@@ -26,7 +26,7 @@ const Sidebar = () => {
     {
       path: "/dashboard/trash",
       icon: "bi bi-trash",
-      label: "Thùng rác",
+      label: "Trash",
       active: location.pathname.includes("/trash"),
     },
   ];
@@ -43,7 +43,7 @@ const Sidebar = () => {
           className="text-decoration-none"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
-          <h4 className="text-primary fw-bold mb-0">STC-Building</h4>
+          <h4 className="text-primary fw-bold mb-0">STC-Building Management</h4>
         </Link>
       </div>
 

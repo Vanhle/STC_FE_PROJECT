@@ -35,22 +35,22 @@ const Register = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.username.trim()) {
-      newErrors.username = "Username là bắt buộc";
+      newErrors.username = "Username is required";
     }
     if (!formData.email.trim()) {
-      newErrors.email = "Email là bắt buộc";
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email không hợp lệ";
+      newErrors.email = "Invalid email";
     }
     if (!formData.password) {
-      newErrors.password = "Mật khẩu là bắt buộc";
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+      newErrors.password = "Password must be at least 6 characters";
     }
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Xác nhận mật khẩu là bắt buộc";
+      newErrors.confirmPassword = "Confirm password is required";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+      newErrors.confirmPassword = "Passwords do not match";
     }
     return newErrors;
   };
@@ -73,15 +73,17 @@ const Register = () => {
       };
       const res = await axiosInstance.post("/auth/register", payload);
       if (res.data && res.data.status === 200) {
-        showToast(res.data.message || "Đăng ký thành công!", {
+        showToast(res.data.message || "Registration successful!", {
           type: "success",
         });
         navigate("/verify-otp", { state: { email: formData.email } });
       } else {
-        showToast(res.data.message || "Đăng ký thất bại!", { type: "error" });
+        showToast(res.data.message || "Registration failed!", {
+          type: "error",
+        });
       }
     } catch (error) {
-      showToast(error.response?.data?.message || "Đăng ký thất bại!", {
+      showToast(error.response?.data?.message || "Registration failed!", {
         type: "error",
       });
     } finally {
@@ -90,16 +92,16 @@ const Register = () => {
   };
 
   return (
-    <AuthLayout subtitle="Đăng ký tài khoản để bắt đầu sử dụng">
+    <AuthLayout subtitle="Register your account to get started">
       <div className="text-center mb-4">
-        <h2 className="fw-bold text-dark mb-2">Đăng ký</h2>
-        <p className="text-muted">Tạo tài khoản mới</p>
+        <h2 className="fw-bold text-dark mb-2">Register</h2>
+        <p className="text-muted">Create a new account</p>
       </div>
       <form onSubmit={handleSubmit}>
         <Input
           type="text"
           name="username"
-          placeholder="Tên đăng nhập"
+          placeholder="Username"
           value={formData.username}
           onChange={handleChange}
           icon="bi bi-person"
@@ -117,7 +119,7 @@ const Register = () => {
         <Input
           type="password"
           name="password"
-          placeholder="Mật khẩu"
+          placeholder="Password"
           value={formData.password}
           onChange={handleChange}
           icon="bi bi-lock"
@@ -126,7 +128,7 @@ const Register = () => {
         <Input
           type="password"
           name="confirmPassword"
-          placeholder="Xác nhận mật khẩu"
+          placeholder="Confirm Password"
           value={formData.confirmPassword}
           onChange={handleChange}
           icon="bi bi-lock-fill"
@@ -146,20 +148,20 @@ const Register = () => {
                   className="spinner-border spinner-border-sm me-2"
                   role="status"
                 ></span>
-                Đang đăng ký...
+                Registering...
               </>
             ) : (
-              "Đăng ký"
+              "Register"
             )}
           </Button>
         </div>
         <div className="text-center">
-          <span className="text-muted">Đã có tài khoản? </span>
+          <span className="text-muted">Already have an account? </span>
           <Link
             to="/login"
             className="text-primary text-decoration-none fw-semibold"
           >
-            Đăng nhập ngay
+            Sign in now
           </Link>
         </div>
       </form>

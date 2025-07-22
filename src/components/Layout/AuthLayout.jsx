@@ -3,7 +3,7 @@ import Logo from "../Common/Logo";
 
 const AuthLayout = ({
   children,
-  subtitle = "Giải pháp quản lý tiện ích - nhanh chóng",
+  subtitle = "Login your account to get started",
 }) => {
   return (
     <div className="min-vh-100 d-flex">
@@ -13,11 +13,6 @@ const AuthLayout = ({
         <div className="text-center position-relative z-index-1 animate-fade-in">
           <Logo size="large" className="mb-4" />
           <p className="text-white fs-5 mb-4 opacity-90">{subtitle}</p>
-          <div className="d-inline-block">
-            <button className="btn btn-outline-light btn-lg px-4 py-2 rounded-pill">
-              Xem thêm
-            </button>
-          </div>
         </div>
       </div>
 

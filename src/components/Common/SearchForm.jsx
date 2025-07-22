@@ -147,12 +147,12 @@ const SearchForm = ({
                       className="spinner-border spinner-border-sm me-2"
                       role="status"
                     ></span>
-                    Đang tìm...
+                    Searching...
                   </>
                 ) : (
                   <>
                     <i className="bi bi-search me-2"></i>
-                    Tìm kiếm
+                    Search
                   </>
                 )}
               </Button>
