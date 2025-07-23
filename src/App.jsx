@@ -14,6 +14,7 @@ import ApartmentManagement from "./components/Management/ApartmentManagement";
 import TrashManagement from "./components/Management/TrashManagement";
 import ProtectedRoute from "./components/Common/ProtectedRoute";
 import Toast from "./components/Common/Toast";
+import CreateProject from "./components/CRUD/Projects/Create";
 import "./App.css";
 
 function App() {
@@ -69,6 +70,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <TrashManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/projects/create"
+            element={
+              <ProtectedRoute>
+                <CreateProject />
               </ProtectedRoute>
             }
           />

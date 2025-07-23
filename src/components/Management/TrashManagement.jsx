@@ -1,523 +1,273 @@
 import React, { useState, useEffect } from "react";
 import DashboardLayout from "../Layout/DashboardLayout";
 import SearchForm from "../Common/SearchForm";
-import DataTable from "../Common/DataTable";
 import Pagination from "../Common/Pagination";
+import axiosInstance from "../../api/axiosInstance";
+import { isAuthenticated } from "../../utils/authUtils";
 
 const TrashManagement = () => {
   const [searchValues, setSearchValues] = useState({
     name: "",
     type: "",
-    project: "",
-    building: "",
-    apartment: "",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [trashItems, setTrashItems] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
 
-  // Mock data cho thùng rác
-  const mockTrashItems = [
-    {
-      id: "#PRJ001",
-      name: "Dự án Vinhomes Ocean Park",
-      type: "Project",
-      project: "Vinhomes Ocean Park",
-      building: "-",
-      apartment: "-",
-      deletedAt: "25/03/2025",
-      deletedBy: "Admin",
-    },
-    {
-      id: "#BLD001",
-      name: "Tòa nhà A1",
-      type: "Building",
-      project: "Times City",
-      building: "Tòa A1",
-      apartment: "-",
-      deletedAt: "24/03/2025",
-      deletedBy: "Manager",
-    },
-    {
-      id: "#APT001",
-      name: "Căn hộ 1201",
-      type: "Apartment",
-      project: "Royal City",
-      building: "Tòa R1",
-      apartment: "Căn 1201",
-      deletedAt: "23/03/2025",
-      deletedBy: "Admin",
-    },
-    {
-      id: "#APT002",
-      name: "Căn hộ 0505",
-      type: "Apartment",
-      project: "Goldmark City",
-      building: "Tòa C2",
-      apartment: "Căn 0505",
-      deletedAt: "22/03/2025",
-      deletedBy: "Manager",
-    },
-    {
-      id: "#BLD002",
-      name: "Tòa nhà B3",
-      type: "Building",
-      project: "Ecopark",
-      building: "Tòa B3",
-      apartment: "-",
-      deletedAt: "21/03/2025",
-      deletedBy: "Admin",
-    },
-  ];
-
-  // Search form configuration
   const searchFields = [
     {
       name: "name",
-      placeholder: "Tìm theo tên...",
-      colSize: 3,
+      placeholder: "Search by name...",
+      colSize: 6,
       icon: "bi bi-search",
-      label: "Tên",
+      label: "Name",
     },
     {
       name: "type",
       type: "singleselect",
-      placeholder: "Chọn loại...",
-      colSize: 3,
-      label: "Loại",
+      placeholder: "Select type...",
+      colSize: 6,
+      label: "Type",
       options: [
-        { value: "", label: "Tất cả loại" },
-        { value: "Project", label: "🏢 Dự án" },
-        { value: "Building", label: "🏠 Tòa nhà" },
-        { value: "Apartment", label: "🏠 Căn hộ" },
-      ],
-    },
-    {
-      name: "project",
-      type: "singleselect",
-      placeholder: "Chọn dự án...",
-      colSize: 2,
-      label: "Dự án",
-      options: [
-        { value: "", label: "Tất cả dự án" },
-        { value: "Vinhomes Ocean Park", label: "Vinhomes Ocean Park" },
-        { value: "Times City", label: "Times City" },
-        { value: "Royal City", label: "Royal City" },
-        { value: "Goldmark City", label: "Goldmark City" },
-        { value: "Ecopark", label: "Ecopark" },
-      ],
-    },
-    {
-      name: "building",
-      type: "singleselect",
-      placeholder: "Chọn tòa nhà...",
-      colSize: 2,
-      label: "Tòa nhà",
-      options: [
-        { value: "", label: "Tất cả tòa nhà" },
-        { value: "Tòa A1", label: "Tòa A1" },
-        { value: "Tòa R1", label: "Tòa R1" },
-        { value: "Tòa C2", label: "Tòa C2" },
-        { value: "Tòa B3", label: "Tòa B3" },
-      ],
-    },
-    {
-      name: "apartment",
-      type: "singleselect",
-      placeholder: "Chọn căn hộ...",
-      colSize: 2,
-      label: "Căn hộ",
-      options: [
-        { value: "", label: "Tất cả căn hộ" },
-        { value: "Căn 1201", label: "Căn 1201" },
-        { value: "Căn 0505", label: "Căn 0505" },
+        { value: "", label: "All types" },
+        { value: "projects", label: "Project" },
+        { value: "buildings", label: "Building" },
+        { value: "apartments", label: "Apartment" },
       ],
     },
   ];
 
-  // Table columns configuration
   const tableColumns = [
     {
       key: "id",
       label: "ID",
-      width: "100px",
+      width: "50px",
       render: (value) => (
         <span className="text-primary fw-semibold">{value}</span>
       ),
     },
     {
-      key: "name",
-      label: "Tên",
+      key: "code",
+      label: "Code",
       width: "200px",
     },
     {
-      key: "type",
-      label: "Loại",
-      width: "100px",
-      render: (value) => {
-        let badgeClass = "bg-secondary";
-        let icon = "bi bi-question";
-
-        if (value === "Project") {
-          badgeClass = "bg-primary";
-          icon = "bi bi-diagram-3";
-        } else if (value === "Building") {
-          badgeClass = "bg-info";
-          icon = "bi bi-building";
-        } else if (value === "Apartment") {
-          badgeClass = "bg-warning";
-          icon = "bi bi-house-door";
-        }
-
-        return (
-          <span
-            className={`badge ${badgeClass} d-flex align-items-center gap-1`}
-          >
-            <i className={icon} style={{ fontSize: "12px" }}></i>
-            {value}
-          </span>
-        );
-      },
+      key: "name",
+      label: "Name",
+      width: "200px",
     },
     {
-      key: "project",
-      label: "Dự án",
-      width: "150px",
-    },
-    {
-      key: "building",
-      label: "Tòa nhà",
-      width: "120px",
-    },
-    {
-      key: "apartment",
-      label: "Căn hộ",
-      width: "120px",
+      key: "active",
+      label: "Status",
+      width: "90px",
+      render: () => (
+        <span
+          className="badge bg-danger d-flex align-items-center gap-1"
+          style={{ width: "fit-content" }}
+        >
+          <i className="bi bi-trash3" style={{ fontSize: "12px" }}></i>
+          Deleted
+        </span>
+      ),
     },
     {
       key: "deletedAt",
-      label: "Ngày xóa",
+      label: "Deleted Date",
       width: "120px",
+      render: (value) => {
+        const date = new Date(value);
+        return isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-US");
+      },
     },
     {
-      key: "deletedBy",
-      label: "Người xóa",
+      key: "updatedBy",
+      label: "Deleted By",
       width: "100px",
     },
   ];
 
-  // Load data effect
+  // Load data from API
   useEffect(() => {
-    loadTrashItems();
+    if (isAuthenticated()) {
+      loadTrashItems();
+    }
   }, [currentPage, searchValues]);
+
+  const generateQuery = () => {
+    const conditions = [];
+
+    // Always filter active = 0 for trash
+    conditions.push("active==0");
+
+    if (searchValues.name) {
+      conditions.push(`name=="*${searchValues.name}*"`);
+    }
+
+    return conditions.join(";");
+  };
 
   const loadTrashItems = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Filter items based on search values
-      let filteredItems = mockTrashItems;
-
-      // Filter by name
-      if (searchValues.name) {
-        filteredItems = filteredItems.filter((item) =>
-          item.name.toLowerCase().includes(searchValues.name.toLowerCase())
-        );
+      if (!isAuthenticated()) {
+        console.error("Authentication required");
+        setTrashItems([]);
+        setTotalItems(0);
+        return;
       }
 
-      // Filter by type
-      if (searchValues.type) {
-        filteredItems = filteredItems.filter(
-          (item) => item.type === searchValues.type
-        );
+      const type = searchValues.type;
+      if (!type) {
+        setTrashItems([]);
+        setTotalItems(0);
+        return;
       }
 
-      // Filter by project
-      if (searchValues.project) {
-        filteredItems = filteredItems.filter(
-          (item) => item.project === searchValues.project
-        );
-      }
+      const response = await axiosInstance.get(`/api/${type}/search`, {
+        params: {
+          page: currentPage - 1,
+          size: 10,
+          query: generateQuery(),
+        },
+      });
 
-      // Filter by building
-      if (searchValues.building) {
-        filteredItems = filteredItems.filter(
-          (item) => item.building === searchValues.building
-        );
+      if (response.data) {
+        setTrashItems(response.data.content);
+        setTotalItems(response.data.totalElements);
+      } else {
+        setTrashItems([]);
+        setTotalItems(0);
       }
-
-      // Filter by apartment
-      if (searchValues.apartment) {
-        filteredItems = filteredItems.filter(
-          (item) => item.apartment === searchValues.apartment
-        );
-      }
-
-      setTrashItems(filteredItems);
     } catch (error) {
       console.error("Error loading trash items:", error);
+      setTrashItems([]);
+      setTotalItems(0);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSearchFieldChange = (fieldName, value) => {
-    setSearchValues((prev) => ({
-      ...prev,
-      [fieldName]: value,
-    }));
+    setCurrentPage(1);
+    setSearchValues((prev) => ({ ...prev, [fieldName]: value }));
   };
 
-  const handleSearch = (values) => {
+  const handleSearch = () => {
     setCurrentPage(1);
-    loadTrashItems();
   };
 
   const handleReset = () => {
     setSearchValues({
       name: "",
       type: "",
-      project: "",
-      building: "",
-      apartment: "",
     });
     setCurrentPage(1);
-  };
-
-  const handleRestore = (item) => {
-    console.log("Restore item:", item);
-    // Hiển thị modal xác nhận và thực hiện phục hồi
-    if (confirm(`Bạn có chắc chắn muốn phục hồi "${item.name}"?`)) {
-      // Gọi API phục hồi
-      alert("Phục hồi thành công!");
-      loadTrashItems();
-    }
-  };
-
-  const handlePermanentDelete = (item) => {
-    console.log("Permanent delete item:", item);
-    // Hiển thị modal xác nhận và thực hiện xóa vĩnh viễn
-    if (
-      confirm(
-        `Bạn có chắc chắn muốn xóa vĩnh viễn "${item.name}"? Hành động này không thể hoàn tác!`
-      )
-    ) {
-      // Gọi API xóa vĩnh viễn
-      alert("Xóa vĩnh viễn thành công!");
-      loadTrashItems();
-    }
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  // Custom DataTable cho thùng rác
-  const TrashDataTable = ({
-    columns,
-    data,
-    onRestore,
-    onPermanentDelete,
-    isLoading,
-    emptyMessage,
-  }) => {
-    if (isLoading) {
-      return (
-        <div className="bg-white rounded shadow-sm p-4">
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-            <p className="mt-3 text-muted">Đang tải dữ liệu...</p>
-          </div>
-        </div>
-      );
+  const handleRestore = async (item) => {
+    if (confirm(`Are you sure you want to restore "${item.name}"?`)) {
+      const type = searchValues.type;
+      if (!type) {
+        alert("Please select a type first.");
+        return;
+      }
+      try {
+        await axiosInstance.put(`/api/${type}/restore/${item.id}`);
+        alert("Restore successful!");
+        loadTrashItems();
+      } catch (err) {
+        alert("Restore failed.");
+        console.error(err);
+      }
     }
+  };
 
-    return (
-      <div className="bg-white rounded shadow-sm">
-        <div className="table-responsive">
-          <table className="table table-hover mb-0">
-            <thead className="table-light">
-              <tr>
-                <th scope="col" style={{ width: "50px" }}>
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    onChange={(e) => {
-                      console.log("Select all:", e.target.checked);
-                    }}
-                  />
-                </th>
-                {columns.map((column, index) => (
-                  <th
-                    key={index}
-                    scope="col"
-                    style={{
-                      fontFamily: "'Inter', sans-serif",
-                      fontWeight: "600",
-                      fontSize: "14px",
-                      width: column.width || "auto",
-                    }}
-                  >
-                    {column.label}
-                  </th>
-                ))}
-                <th
-                  scope="col"
-                  style={{
-                    width: "200px",
-                    fontFamily: "'Inter', sans-serif",
-                    fontWeight: "600",
-                    fontSize: "14px",
-                  }}
-                >
-                  Hành động
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={columns.length + 2}
-                    className="text-center py-4 text-muted"
-                  >
-                    <i className="bi bi-trash display-6 text-muted d-block mb-3"></i>
-                    {emptyMessage}
-                  </td>
-                </tr>
-              ) : (
-                data.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        onChange={(e) => {
-                          console.log(
-                            "Row selected:",
-                            rowIndex,
-                            e.target.checked
-                          );
-                        }}
-                      />
-                    </td>
-                    {columns.map((column, colIndex) => (
-                      <td
-                        key={colIndex}
-                        style={{
-                          fontFamily: "'Inter', sans-serif",
-                          fontSize: "14px",
-                        }}
-                      >
-                        {column.render
-                          ? column.render(row[column.key], row, rowIndex)
-                          : row[column.key]}
-                      </td>
-                    ))}
-                    <td>
-                      <div className="d-flex gap-2">
-                        <button
-                          className="btn btn-outline-success btn-sm px-3"
-                          onClick={() => onRestore && onRestore(row)}
-                          style={{
-                            fontFamily: "'Inter', sans-serif",
-                            fontWeight: "600",
-                            fontSize: "12px",
-                          }}
-                        >
-                          <i className="bi bi-arrow-counterclockwise me-1"></i>
-                          Phục hồi
-                        </button>
-                        <button
-                          className="btn btn-outline-danger btn-sm px-3"
-                          onClick={() =>
-                            onPermanentDelete && onPermanentDelete(row)
-                          }
-                          style={{
-                            fontFamily: "'Inter', sans-serif",
-                            fontWeight: "600",
-                            fontSize: "12px",
-                          }}
-                        >
-                          <i className="bi bi-trash3 me-1"></i>
-                          Xóa vĩnh viễn
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
+  const handlePermanentDelete = async (item) => {
+    if (
+      confirm(
+        `Are you sure you want to permanently delete "${item.name}"? This action cannot be undone!`
+      )
+    ) {
+      const type = searchValues.type;
+      if (!type) {
+        alert("Please select a type first.");
+        return;
+      }
+      try {
+        await axiosInstance.delete(
+          `/api/${type}/trash/permanentDelete/${item.id}`
+        );
+        alert("Permanent deletion successful!");
+        loadTrashItems();
+      } catch (err) {
+        alert("Permanent deletion failed.");
+        console.error(err);
+      }
+    }
+  };
+
+  const handleRestoreAll = async () => {
+    if (confirm("Are you sure you want to restore all items in the trash?")) {
+      const type = searchValues.type;
+      if (!type) {
+        alert("Please select a type first.");
+        return;
+      }
+      try {
+        await axiosInstance.put(`/api/${type}/restoreAllFromTrash`);
+        alert("All items restored successfully!");
+        loadTrashItems();
+      } catch (err) {
+        alert("Failed to restore all items.");
+        console.error(err);
+      }
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (
+      confirm(
+        "Are you sure you want to permanently delete all items in the trash?"
+      )
+    ) {
+      const type = searchValues.type;
+      if (!type) {
+        alert("Please select a type first.");
+        return;
+      }
+      try {
+        await axiosInstance.delete(`/api/${type}/trash/clear`);
+        alert("All items permanently deleted!");
+        loadTrashItems();
+      } catch (err) {
+        alert("Failed to delete all items.");
+        console.error(err);
+      }
+    }
   };
 
   return (
-    <DashboardLayout title="TRASH MANAGEMENT">
+    <DashboardLayout>
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h5 className="text-muted mb-0">
-          <i className="bi bi-trash me-2"></i>
-          Quản lý thùng rác
-        </h5>
+        <h5 className="text-muted mb-0">Trash Management</h5>
         <div className="d-flex gap-2">
-          <button
-            className="btn btn-outline-danger"
-            onClick={() => {
-              if (
-                confirm(
-                  "Bạn có chắc chắn muốn xóa vĩnh viễn tất cả mục trong thùng rác?"
-                )
-              ) {
-                alert("Đã xóa vĩnh viễn tất cả!");
-                loadTrashItems();
-              }
-            }}
-            style={{
-              borderRadius: "8px",
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: "600",
-              fontSize: "14px",
-              padding: "8px 16px",
-            }}
-          >
-            <i className="bi bi-trash3 me-2"></i>
-            Xóa vĩnh viễn tất cả
+          <button className="btn btn-outline-danger" onClick={handleDeleteAll}>
+            <i className="bi bi-trash3 me-2"></i> Delete All Permanently
           </button>
-          <button
-            className="btn btn-success"
-            onClick={() => {
-              if (
-                confirm(
-                  "Bạn có chắc chắn muốn phục hồi tất cả mục trong thùng rác?"
-                )
-              ) {
-                alert("Đã phục hồi tất cả!");
-                loadTrashItems();
-              }
-            }}
-            style={{
-              borderRadius: "8px",
-              fontFamily: "'Inter', sans-serif",
-              fontWeight: "600",
-              fontSize: "14px",
-              padding: "8px 16px",
-            }}
-          >
-            <i className="bi bi-arrow-counterclockwise me-2"></i>
-            Phục hồi tất cả
+          <button className="btn btn-success" onClick={handleRestoreAll}>
+            <i className="bi bi-arrow-counterclockwise me-2"></i> Restore All
           </button>
         </div>
       </div>
 
-      {/* Search Form */}
+      {/* Search */}
       <SearchForm
         fields={searchFields}
         values={searchValues}
@@ -527,26 +277,99 @@ const TrashManagement = () => {
         isLoading={isLoading}
       />
 
-      {/* Data Table */}
-      <TrashDataTable
-        columns={tableColumns}
-        data={trashItems}
-        onRestore={handleRestore}
-        onPermanentDelete={handlePermanentDelete}
-        isLoading={isLoading}
-        emptyMessage="Thùng rác trống"
-      />
+      {/* Info */}
+      <div className="alert alert-info mb-4">
+        <i className="bi bi-info-circle me-2"></i>
+        Items in trash will be permanently deleted after 30 days.
+      </div>
 
-      {/* Pagination */}
-      {trashItems.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(trashItems.length / 10)}
-          totalItems={trashItems.length}
-          itemsPerPage={10}
-          onPageChange={handlePageChange}
-        />
-      )}
+      {/* Table */}
+      <div className="bg-white rounded shadow-sm">
+        <div className="table-responsive">
+          <table className="table table-hover mb-0">
+            <thead className="table-light">
+              <tr>
+                <th style={{ width: "50px" }}></th>
+                {tableColumns.map((col, i) => (
+                  <th key={i} style={{ width: col.width || "auto" }}>
+                    {col.label}
+                  </th>
+                ))}
+                <th style={{ width: "200px" }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {isLoading ? (
+                <tr>
+                  <td
+                    colSpan={tableColumns.length + 2}
+                    className="text-center py-5"
+                  >
+                    Loading data...
+                  </td>
+                </tr>
+              ) : !searchValues.type ? (
+                <tr>
+                  <td
+                    colSpan={tableColumns.length + 2}
+                    className="text-center py-4 text-muted"
+                  >
+                    <i className="bi bi-funnel display-6 text-muted d-block mb-3"></i>
+                    Please select a type to view
+                  </td>
+                </tr>
+              ) : trashItems.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={tableColumns.length + 2}
+                    className="text-center py-4 text-muted"
+                  >
+                    Trash is empty
+                  </td>
+                </tr>
+              ) : (
+                trashItems.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    <td>
+                      <input type="checkbox" className="form-check-input" />
+                    </td>
+                    {tableColumns.map((col, colIndex) => (
+                      <td key={colIndex}>
+                        {col.render
+                          ? col.render(row[col.key], row, rowIndex)
+                          : row[col.key]}
+                      </td>
+                    ))}
+                    <td>
+                      <button
+                        className="btn btn-outline-success btn-sm me-2"
+                        onClick={() => handleRestore(row)}
+                      >
+                        <i className="bi bi-arrow-counterclockwise me-1"></i>{" "}
+                        Restore
+                      </button>
+                      <button
+                        className="btn btn-outline-danger btn-sm"
+                        onClick={() => handlePermanentDelete(row)}
+                      >
+                        <i className="bi bi-trash3 me-1"></i> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(totalItems / 10)}
+        totalItems={totalItems}
+        itemsPerPage={10}
+        onPageChange={handlePageChange}
+      />
     </DashboardLayout>
   );
 };

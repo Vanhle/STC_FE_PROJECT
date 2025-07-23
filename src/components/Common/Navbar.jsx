@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { showToast } from "./Toast";
 
-const Navbar = ({ title = "Dashboard" }) => {
+const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -35,24 +35,11 @@ const Navbar = ({ title = "Dashboard" }) => {
     <nav className="navbar navbar-expand-lg bg-white border-bottom px-4 py-3">
       <div className="container-fluid">
         {/* Page Title */}
-        <div className="navbar-brand mb-0">
-          <h2
-            className="fw-bold text-dark mb-0"
-            style={{
-              fontFamily: "'Inter', sans-serif",
-              letterSpacing: "-0.025em",
-              fontSize: "24px",
-            }}
-          >
-            {title}
-          </h2>
-        </div>
-
         {/* Right side - User menu */}
         <div className="navbar-nav ms-auto">
           <div className="nav-item dropdown">
             <button
-              className="btn btn-link nav-link dropdown-toggle d-flex align-items-center text-decoration-none border-0 bg-transparent"
+              className="btn btn-link nav-link dropdown-toggle d-flex align-items-center text-decoration-none border-0 bg-transparent pt-2 pb-1"
               type="button"
               data-bs-toggle="dropdown"
               aria-expanded="false"

@@ -69,7 +69,7 @@ const Pagination = ({
           className="text-muted"
           style={{ fontFamily: "'Inter', sans-serif", fontSize: "14px" }}
         >
-          Hiển thị {startItem} - {endItem} trong tổng số {totalItems} kết quả
+          Showing {startItem} - {endItem} of {totalItems} results
         </div>
       )}
 

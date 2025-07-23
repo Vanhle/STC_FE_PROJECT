@@ -3,12 +3,14 @@ import DashboardLayout from "../Layout/DashboardLayout";
 import SearchForm from "../Common/SearchForm";
 import DataTable from "../Common/DataTable";
 import Pagination from "../Common/Pagination";
+import axiosInstance from "../../api/axiosInstance";
+import { isAuthenticated } from "../../utils/authUtils";
 
 const BuildingManagement = () => {
   const [searchValues, setSearchValues] = useState({
     projectName: "",
     buildingName: "",
-    status: "",
+    active: "",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -16,42 +18,29 @@ const BuildingManagement = () => {
   const [buildings, setBuildings] = useState([]);
   const [totalBuildings, setTotalBuildings] = useState(0);
 
-  // Search form configuration
   const searchFields = [
     {
       name: "projectName",
       placeholder: "Search by project name...",
-      colSize: 4,
+      colSize: 6,
       icon: "bi bi-search",
       label: "Project Name",
     },
     {
       name: "buildingName",
       placeholder: "Search by building name...",
-      colSize: 4,
+      colSize: 6,
       icon: "bi bi-search",
       label: "Building Name",
     },
-    {
-      name: "status",
-      type: "singleselect",
-      placeholder: "Select status...",
-      colSize: 4,
-      label: "Status",
-      options: [
-        { value: "", label: "All statuses" },
-        { value: "Visible", label: "👁️ Visible" },
-        { value: "Hidden", label: "🚫 Hidden" },
-      ],
-    },
   ];
 
-  // Table columns configuration
+  //bảng giá trị ( key là tên cột json trả về)
   const tableColumns = [
     {
       key: "id",
-      label: "Building ID",
-      width: "120px",
+      label: "ID",
+      width: "50px",
       render: (value) => (
         <span className="text-primary fw-semibold">{value}</span>
       ),
@@ -59,78 +48,69 @@ const BuildingManagement = () => {
     {
       key: "projectName",
       label: "Project Name",
-      width: "180px",
+      width: "100px",
+      render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
-      key: "buildingName",
+      key: "name",
       label: "Building Name",
       width: "150px",
+      render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
-      key: "basementFloors",
-      label: "Basement Floors",
+      key: "numberOfBasements",
+      label: "Number of Basements",
       width: "100px",
       render: (value) => <span className="badge bg-secondary">{value}</span>,
     },
     {
-      key: "floors",
-      label: "Floors",
+      key: "numberOfLivingFloors",
+      label: "Number of Living Floors",
       width: "80px",
       render: (value) => <span className="badge bg-info">{value}</span>,
     },
     {
-      key: "apartments",
-      label: "Apartments",
-      width: "90px",
-      render: (value) => <span className="badge bg-primary">{value}</span>,
-    },
-    {
-      key: "status",
+      key: "active",
       label: "Status",
-      width: "100px",
-      render: (value) => {
-        const statusClass = value === "Visible" ? "bg-success" : "bg-secondary";
-        const statusIcon =
-          value === "Visible" ? "bi bi-eye" : "bi bi-eye-slash";
-        return (
-          <span
-            className={`badge ${statusClass} d-flex align-items-center gap-1`}
-            style={{ width: "fit-content" }}
-          >
-            <i className={statusIcon} style={{ fontSize: "12px" }}></i>
-            {value}
-          </span>
-        );
-      },
+      width: "90px",
+      render: () => (
+        <span
+          className="badge bg-success d-flex align-items-center gap-1"
+          style={{ width: "fit-content" }}
+        >
+          <i className="bi bi-eye" style={{ fontSize: "12px" }}></i>
+          Active
+        </span>
+      ),
     },
   ];
 
-  // Debounce search values to optimize API calls
-  const [debouncedSearchValues, setDebouncedSearchValues] =
-    useState(searchValues);
-
-  // Debounce effect for search values
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchValues(searchValues);
-    }, 500); // Wait 500ms after user stops typing
+    if (isAuthenticated()) {
+      loadBuildings();
+    }
+  }, [currentPage, searchValues]);
 
-    return () => clearTimeout(timer);
-  }, [searchValues]);
+  const generateQuery = () => {
+    const conditions = [];
 
-  // Load data effect with debounced search values
-  useEffect(() => {
-    loadBuildings();
-  }, [currentPage, debouncedSearchValues]);
+    // Always filter active = 1
+    conditions.push("active==1");
+
+    if (searchValues.projectName) {
+      conditions.push(`project.name=="*${searchValues.projectName}*"`);
+    }
+
+    if (searchValues.buildingName) {
+      conditions.push(`name=="*${searchValues.buildingName}*"`);
+    }
+    return conditions.join(";");
+  };
 
   const loadBuildings = async () => {
     setIsLoading(true);
     try {
-      // Check if user is authenticated
-      const token = localStorage.getItem("authToken");
-      const expiredAt = localStorage.getItem("tokenExpiredAt");
-
-      if (!token || !expiredAt || Date.now() >= Number(expiredAt)) {
+      if (!isAuthenticated()) {
         console.error("Authentication required");
         setBuildings([]);
         setTotalBuildings(0);
@@ -138,60 +118,42 @@ const BuildingManagement = () => {
       }
 
       const response = await axiosInstance.get(
-        "http://localhost:8080/api/buildings/search?query=",
+        "http://localhost:8080/api/buildings/search?",
         {
           params: {
-            page: currentPage - 1, // Backend usually uses 0-based pagination
+            page: currentPage - 1,
             size: 10,
-            projectName: debouncedSearchValues.projectName || undefined,
-            buildingName: debouncedSearchValues.buildingName || undefined,
-            status: debouncedSearchValues.status || undefined,
+            query: generateQuery(),
           },
         }
       );
 
-      // Filter buildings based on debounced search values
-      let filteredBuildings = response.data.buildings || response.data || [];
-      if (debouncedSearchValues.projectName) {
-        filteredBuildings = filteredBuildings.filter((b) =>
-          b.projectName
-            .toLowerCase()
-            .includes(debouncedSearchValues.projectName.toLowerCase())
-        );
+      if (response.data) {
+        setBuildings(response.data.content);
+        setTotalBuildings(response.data.totalElements);
+      } else {
+        setBuildings([]);
+        setTotalBuildings(0);
       }
-
-      if (debouncedSearchValues.buildingName) {
-        filteredBuildings = filteredBuildings.filter((b) =>
-          b.buildingName
-            .toLowerCase()
-            .includes(debouncedSearchValues.buildingName.toLowerCase())
-        );
-      }
-
-      if (debouncedSearchValues.status) {
-        filteredBuildings = filteredBuildings.filter(
-          (b) => b.status === debouncedSearchValues.status
-        );
-      }
-
-      setBuildings(filteredBuildings);
     } catch (error) {
       console.error("Error loading buildings:", error);
+      setBuildings([]);
+      setTotalBuildings(0);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSearchFieldChange = (fieldName, value) => {
+    setCurrentPage(1);
     setSearchValues((prev) => ({
       ...prev,
       [fieldName]: value,
     }));
   };
 
-  const handleSearch = (values) => {
+  const handleSearch = () => {
     setCurrentPage(1);
-    loadBuildings();
   };
 
   const handleReset = () => {
@@ -221,12 +183,23 @@ const BuildingManagement = () => {
 
   const handleAdd = () => {
     console.log("Add new building");
-    // Navigate to add building page
   };
 
   return (
-    <DashboardLayout title="BUILDING MANAGEMENT">
-      {/* Header with Add Button */}
+    <DashboardLayout>
+      {(!localStorage.getItem("authToken") ||
+        !localStorage.getItem("tokenExpiredAt") ||
+        Date.now() >= Number(localStorage.getItem("tokenExpiredAt"))) && (
+        <div className="alert alert-danger mb-4" role="alert">
+          <i className="bi bi-shield-exclamation me-2"></i>
+          <strong>Authentication Required:</strong> Please log in to view
+          building data.
+          <a href="/login" className="alert-link ms-2">
+            Log in now
+          </a>
+        </div>
+      )}
+
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h5 className="text-muted mb-0">Building Management</h5>
         <button
@@ -245,7 +218,6 @@ const BuildingManagement = () => {
         </button>
       </div>
 
-      {/* Search Form */}
       <SearchForm
         fields={searchFields}
         values={searchValues}
@@ -255,7 +227,6 @@ const BuildingManagement = () => {
         isLoading={isLoading}
       />
 
-      {/* Data Table */}
       <DataTable
         columns={tableColumns}
         data={buildings}
@@ -263,19 +234,22 @@ const BuildingManagement = () => {
         onEdit={handleEdit}
         onDelete={handleDelete}
         isLoading={isLoading}
-        emptyMessage="No buildings found"
+        emptyMessage={
+          !localStorage.getItem("authToken") ||
+          !localStorage.getItem("tokenExpiredAt") ||
+          Date.now() >= Number(localStorage.getItem("tokenExpiredAt"))
+            ? "Please log in to view building data"
+            : "No buildings match the search criteria"
+        }
       />
 
-      {/* Pagination */}
-      {buildings.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(mockBuildings.length / 10)}
-          totalItems={mockBuildings.length}
-          itemsPerPage={10}
-          onPageChange={handlePageChange}
-        />
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(totalBuildings / 10)}
+        totalItems={totalBuildings}
+        itemsPerPage={10}
+        onPageChange={handlePageChange}
+      />
     </DashboardLayout>
   );
 };

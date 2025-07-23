@@ -108,30 +108,27 @@ const DataTable = ({
                   ))}
                   <td>
                     <div className="d-flex gap-2">
-                      <Button
-                        variant="dark"
-                        size="sm"
+                      <button
+                        className="btn btn-outline-dark btn-sm"
                         onClick={() => onView && onView(row)}
-                        className="px-3"
                       >
+                        <i className="bi bi-eye me-1"></i>
                         View
-                      </Button>
-                      <Button
-                        variant="primary"
-                        size="sm"
+                      </button>
+                      <button
+                        className="btn btn-outline-primary btn-sm"
                         onClick={() => onEdit && onEdit(row)}
-                        className="px-3"
                       >
+                        <i className="bi bi-pencil me-1"></i>
                         Edit
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
+                      </button>
+                      <button
+                        className="btn btn-outline-danger btn-sm"
                         onClick={() => onDelete && onDelete(row)}
-                        className="px-3"
                       >
+                        <i className="bi bi-trash3 me-1"></i>
                         Delete
-                      </Button>
+                      </button>
                     </div>
                   </td>
                 </tr>
