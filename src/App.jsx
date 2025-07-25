@@ -15,12 +15,17 @@ import TrashManagement from "./components/Management/TrashManagement";
 import DeactivatedManagement from "./components/Management/DeactivatedManagement";
 import ProtectedRoute from "./components/Common/ProtectedRoute";
 import Toast from "./components/Common/Toast";
+
 import CreateProject from "./components/CRUD/Projects/Create";
 import ViewProject from "./components/CRUD/Projects/View";
 import CreateBuilding from "./components/CRUD/Buildings/Create";
 import ViewBuilding from "./components/CRUD/Buildings/View";
 import CreateApartment from "./components/CRUD/Apartments/Create";
 import ViewApartment from "./components/CRUD/Apartments/View";
+
+import ResetPassword from "./components/Auth/ResetPassword";
+import ForgotPassword from "./components/Auth/ForgotPassword";
+
 import "./App.css";
 
 function App() {
@@ -33,6 +38,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/verify-otp" element={<OTPVerification />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Dashboard Routes - Protected */}
           <Route

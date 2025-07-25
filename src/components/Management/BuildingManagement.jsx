@@ -20,20 +20,25 @@ const BuildingManagement = () => {
   const [buildings, setBuildings] = useState([]);
   const [totalBuildings, setTotalBuildings] = useState(0);
 
+
   const searchFields = [
     {
       name: "projectName",
       placeholder: "Search by project name...",
+
       colSize: 6,
+
       icon: "bi bi-search",
       label: "Project Name",
     },
     {
       name: "buildingName",
       placeholder: "Search by building name...",
+
       colSize: 6,
       icon: "bi bi-search",
       label: "Building Name",
+
     },
   ];
 
@@ -50,28 +55,35 @@ const BuildingManagement = () => {
     {
       key: "projectName",
       label: "Project Name",
+
       width: "100px",
       render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
       key: "name",
+
       label: "Building Name",
       width: "150px",
       render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
+
       key: "numberOfBasements",
       label: "Number of Basements",
+
       width: "100px",
       render: (value) => <span className="badge bg-secondary">{value}</span>,
     },
     {
+
       key: "numberOfLivingFloors",
       label: "Number of Living Floors",
+
       width: "80px",
       render: (value) => <span className="badge bg-info">{value}</span>,
     },
     {
+
       key: "active",
       label: "Status",
       width: "90px",
@@ -93,6 +105,7 @@ const BuildingManagement = () => {
     }
   }, [currentPage, searchValues]);
 
+
   const generateQuery = () => {
     const conditions = [];
 
@@ -112,11 +125,14 @@ const BuildingManagement = () => {
   const loadBuildings = async () => {
     setIsLoading(true);
     try {
+
       if (!isAuthenticated()) {
+
         console.error("Authentication required");
         setBuildings([]);
         setTotalBuildings(0);
         return;
+
       }
 
       const response = await axiosInstance.get(
@@ -136,6 +152,7 @@ const BuildingManagement = () => {
       } else {
         setBuildings([]);
         setTotalBuildings(0);
+
       }
     } catch (error) {
       console.error("Error loading buildings:", error);
@@ -252,11 +269,13 @@ const BuildingManagement = () => {
         onDelete={(row) => handleMoveToTrash(row)}
         onDeactive={(row) => handleDeactive(row)}
         isLoading={isLoading}
+
         emptyMessage={
           !isAuthenticated()
             ? "Please log in to view building data"
             : "No buildings match the search criteria"
         }
+
       />
 
       <Pagination

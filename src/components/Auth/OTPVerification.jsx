@@ -110,7 +110,7 @@ const OTPVerification = () => {
   const handleResendOTP = async () => {
     if (!canResend) return;
     try {
-      const payload = { email };
+      const payload = { email, isReset: false };
       const res = await axiosInstance.post("/auth/resendotp", payload);
       if (res.data && res.data.status === 200) {
         showToast(res.data.message || "Đã gửi lại mã OTP!", {

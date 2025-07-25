@@ -5,7 +5,9 @@ import SearchForm from "../Common/SearchForm";
 import DataTable from "../Common/DataTable";
 import Pagination from "../Common/Pagination";
 import axiosInstance from "../../api/axiosInstance";
+
 import { isAuthenticated } from "../../utils/authUtils";
+
 
 const ApartmentManagement = () => {
   const navigate = useNavigate();
@@ -37,7 +39,9 @@ const ApartmentManagement = () => {
       placeholder: "Search by apartment name...",
       colSize: 6,
       icon: "bi bi-search",
+
       label: "Apartment Name",
+
     },
     {
       name: "totalAreaFrom",
@@ -69,18 +73,21 @@ const ApartmentManagement = () => {
     },
   ];
 
+
   //bảng giá trị ( key là tên cột json trả về)
   const tableColumns = [
     {
       key: "id",
       label: "ID",
       width: "50px",
+
       render: (value) => (
         <span className="text-primary fw-semibold">{value}</span>
       ),
     },
     {
       key: "buildingName",
+
       label: "Building Name",
       width: "180px",
       render: (value) => <span className="fw-semibold">{value}</span>,
@@ -88,18 +95,23 @@ const ApartmentManagement = () => {
     {
       key: "name",
       label: "Apartment Name",
+
       width: "160px",
       render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
       key: "atFloor",
+
       label: "Floor",
+
       width: "55px",
       render: (value) => <span className="badge bg-secondary">{value}</span>,
     },
     {
       key: "totalArea",
+
       label: "Area",
+
       width: "80px",
       render: (value) => (
         <span className="badge bg-info">{value?.toFixed(1)}m²</span>
@@ -107,16 +119,19 @@ const ApartmentManagement = () => {
     },
     {
       key: "price",
+
       label: "Price",
       width: "100px",
       render: (value) => (
         <span className="fw-semibold text-success">
           {(value / 1000000000)?.toFixed(2)} billion
+
         </span>
       ),
     },
     {
       key: "active",
+
       label: "Status",
       width: "90px",
       render: () => (
@@ -128,6 +143,7 @@ const ApartmentManagement = () => {
           Active
         </span>
       ),
+
     },
   ];
 
@@ -138,6 +154,7 @@ const ApartmentManagement = () => {
   }, [currentPage, searchValues]);
 
   const generateQuery = () => {
+
     const conditions = [];
 
     // Always filter active = 1
@@ -193,6 +210,7 @@ const ApartmentManagement = () => {
         setApartments([]);
         setTotalApartments(0);
       }
+
     } catch (error) {
       console.error("Error loading apartments:", error);
       setApartments([]);
@@ -266,6 +284,7 @@ const ApartmentManagement = () => {
   };
 
   return (
+
     <DashboardLayout>
       {!isAuthenticated() && (
         <div className="alert alert-danger mb-4" role="alert">
@@ -274,9 +293,11 @@ const ApartmentManagement = () => {
           apartment data.
           <a href="/login" className="alert-link ms-2">
             Log in now
+
           </a>
         </div>
       )}
+
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h5 className="text-muted mb-0">Apartment Management</h5>
@@ -313,11 +334,13 @@ const ApartmentManagement = () => {
         onDeactive={(row) => handleDeactive(row)}
         isLoading={isLoading}
         emptyMessage={
+
           !isAuthenticated()
             ? "Please log in to view apartment data"
             : "No apartments match the search criteria"
         }
       />
+
 
       <Pagination
         currentPage={currentPage}
