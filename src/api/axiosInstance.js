@@ -12,6 +12,16 @@ const axiosInstance = axios.create({
 // Interceptor cho request: tự động thêm accessToken nếu còn hạn
 axiosInstance.interceptors.request.use(
   async (config) => {
+    // Bỏ qua interceptor cho các API public không cần token
+    if (
+      config.url.includes("/auth/register") ||
+      config.url.includes("/auth/login") ||
+      config.url.includes("/auth/forgotpassword") ||
+      config.url.includes("/auth/verifyotp") ||
+      config.url.includes("/auth/resetpassword")
+    ) {
+      return config;
+    }
     const token = localStorage.getItem("authToken");
     const expiredAt = localStorage.getItem("tokenExpiredAt");
     const refreshToken = localStorage.getItem("refreshToken");
