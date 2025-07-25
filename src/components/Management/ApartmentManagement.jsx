@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../Layout/DashboardLayout";
 import SearchForm from "../Common/SearchForm";
 import DataTable from "../Common/DataTable";
@@ -7,6 +8,7 @@ import axiosInstance from "../../api/axiosInstance";
 import { isAuthenticated } from "../../utils/authUtils";
 
 const ApartmentManagement = () => {
+  const navigate = useNavigate();
   const [searchValues, setSearchValues] = useState({
     buildingName: "",
     apartmentName: "",
@@ -226,15 +228,33 @@ const ApartmentManagement = () => {
   };
 
   const handleView = (apartment) => {
-    console.log("View apartment:", apartment);
+    navigate(`/dashboard/apartments/view/${apartment.id}`);
   };
 
-  const handleEdit = (apartment) => {
-    console.log("Edit apartment:", apartment);
+  const handleDeactive = async (item) => {
+    if (confirm(`Are you sure you want to deactive "${item.name}"?`)) {
+      try {
+        await axiosInstance.delete(`/api/apartments/deactivate/${item.id}`);
+        alert("Deactive successful!");
+        loadApartments();
+      } catch (err) {
+        alert("Deactive failed.");
+        console.error(err);
+      }
+    }
   };
 
-  const handleDelete = (apartment) => {
-    console.log("Delete apartment:", apartment);
+  const handleMoveToTrash = async (item) => {
+    if (confirm(`Are you sure you want to move "${item.name}" to trash?`)) {
+      try {
+        await axiosInstance.delete(`/api/apartments/moveToTrash/${item.id}`);
+        alert("Move to trash successful!");
+        loadApartments();
+      } catch (err) {
+        alert("Move to trash failed.");
+        console.error(err);
+      }
+    }
   };
 
   const handlePageChange = (page) => {
@@ -242,14 +262,12 @@ const ApartmentManagement = () => {
   };
 
   const handleAdd = () => {
-    console.log("Add new apartment");
+    navigate("/dashboard/apartments/create");
   };
 
   return (
     <DashboardLayout>
-      {(!localStorage.getItem("authToken") ||
-        !localStorage.getItem("tokenExpiredAt") ||
-        Date.now() >= Number(localStorage.getItem("tokenExpiredAt"))) && (
+      {!isAuthenticated() && (
         <div className="alert alert-danger mb-4" role="alert">
           <i className="bi bi-shield-exclamation me-2"></i>
           <strong>Authentication Required:</strong> Please log in to view
@@ -291,13 +309,11 @@ const ApartmentManagement = () => {
         columns={tableColumns}
         data={apartments}
         onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={(row) => handleMoveToTrash(row)}
+        onDeactive={(row) => handleDeactive(row)}
         isLoading={isLoading}
         emptyMessage={
-          !localStorage.getItem("authToken") ||
-          !localStorage.getItem("tokenExpiredAt") ||
-          Date.now() >= Number(localStorage.getItem("tokenExpiredAt"))
+          !isAuthenticated()
             ? "Please log in to view apartment data"
             : "No apartments match the search criteria"
         }

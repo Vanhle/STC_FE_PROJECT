@@ -5,7 +5,7 @@ const DataTable = ({
   columns = [],
   data = [],
   onView,
-  onEdit,
+  onDeactive,
   onDelete,
   isLoading = false,
   emptyMessage = "Không có dữ liệu",
@@ -109,25 +109,53 @@ const DataTable = ({
                   <td>
                     <div className="d-flex gap-2">
                       <button
-                        className="btn btn-outline-dark btn-sm"
+                        className="btn btn-outline-dark btn-sm d-flex flex-column align-items-center px-3 py-2 fw-bold"
                         onClick={() => onView && onView(row)}
+                        style={{ minWidth: "60px", fontWeight: "600" }}
                       >
-                        <i className="bi bi-eye me-1"></i>
-                        View
+                        <i
+                          className="bi bi-eye mb-1"
+                          style={{ fontSize: "14px", fontWeight: "bold" }}
+                        ></i>
+                        <span style={{ fontSize: "10px", fontWeight: "bold" }}>
+                          View
+                        </span>
                       </button>
                       <button
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={() => onEdit && onEdit(row)}
+                        className="btn btn-outline-warning btn-sm d-flex flex-column align-items-center px-3 py-2 fw-bold"
+                        onClick={() => onDeactive && onDeactive(row)}
+                        style={{ minWidth: "70px", fontWeight: "600" }}
                       >
-                        <i className="bi bi-pencil me-1"></i>
-                        Edit
+                        <i
+                          className="bi bi-power mb-1"
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            color: "#ff6b35",
+                          }}
+                        ></i>
+                        <span
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "bold",
+                            color: "#ff6b35",
+                          }}
+                        >
+                          Deactive
+                        </span>
                       </button>
                       <button
-                        className="btn btn-outline-danger btn-sm"
+                        className="btn btn-outline-danger btn-sm d-flex flex-column align-items-center px-3 py-2 fw-bold"
                         onClick={() => onDelete && onDelete(row)}
+                        style={{ minWidth: "100px", fontWeight: "600" }}
                       >
-                        <i className="bi bi-trash3 me-1"></i>
-                        Delete
+                        <i
+                          className="bi bi-trash3 mb-1"
+                          style={{ fontSize: "14px", fontWeight: "bold" }}
+                        ></i>
+                        <span style={{ fontSize: "10px", fontWeight: "bold" }}>
+                          Move to trash
+                        </span>
                       </button>
                     </div>
                   </td>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../Layout/DashboardLayout";
 import SearchForm from "../Common/SearchForm";
 import DataTable from "../Common/DataTable";
@@ -7,6 +8,7 @@ import axiosInstance from "../../api/axiosInstance";
 import { isAuthenticated } from "../../utils/authUtils";
 
 const BuildingManagement = () => {
+  const navigate = useNavigate();
   const [searchValues, setSearchValues] = useState({
     projectName: "",
     buildingName: "",
@@ -166,15 +168,33 @@ const BuildingManagement = () => {
   };
 
   const handleView = (building) => {
-    console.log("View building:", building);
+    navigate(`/dashboard/buildings/view/${building.id}`);
   };
 
-  const handleEdit = (building) => {
-    console.log("Edit building:", building);
+  const handleDeactive = async (item) => {
+    if (confirm(`Are you sure you want to deactive "${item.name}"?`)) {
+      try {
+        await axiosInstance.delete(`/api/buildings/deactivate/${item.id}`);
+        alert("Deactive successful!");
+        loadBuildings();
+      } catch (err) {
+        alert("Deactive failed.");
+        console.error(err);
+      }
+    }
   };
 
-  const handleDelete = (building) => {
-    console.log("Delete building:", building);
+  const handleMoveToTrash = async (item) => {
+    if (confirm(`Are you sure you want to move "${item.name}" to trash?`)) {
+      try {
+        await axiosInstance.delete(`/api/buildings/moveToTrash/${item.id}`);
+        alert("Move to trash successful!");
+        loadBuildings();
+      } catch (err) {
+        alert("Move to trash failed.");
+        console.error(err);
+      }
+    }
   };
 
   const handlePageChange = (page) => {
@@ -182,14 +202,12 @@ const BuildingManagement = () => {
   };
 
   const handleAdd = () => {
-    console.log("Add new building");
+    navigate("/dashboard/buildings/create");
   };
 
   return (
     <DashboardLayout>
-      {(!localStorage.getItem("authToken") ||
-        !localStorage.getItem("tokenExpiredAt") ||
-        Date.now() >= Number(localStorage.getItem("tokenExpiredAt"))) && (
+      {!isAuthenticated() && (
         <div className="alert alert-danger mb-4" role="alert">
           <i className="bi bi-shield-exclamation me-2"></i>
           <strong>Authentication Required:</strong> Please log in to view
@@ -231,13 +249,11 @@ const BuildingManagement = () => {
         columns={tableColumns}
         data={buildings}
         onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={(row) => handleMoveToTrash(row)}
+        onDeactive={(row) => handleDeactive(row)}
         isLoading={isLoading}
         emptyMessage={
-          !localStorage.getItem("authToken") ||
-          !localStorage.getItem("tokenExpiredAt") ||
-          Date.now() >= Number(localStorage.getItem("tokenExpiredAt"))
+          !isAuthenticated()
             ? "Please log in to view building data"
             : "No buildings match the search criteria"
         }

@@ -29,6 +29,12 @@ const Sidebar = () => {
       label: "Trash",
       active: location.pathname.includes("/trash"),
     },
+    {
+      path: "/dashboard/deactivated",
+      icon: "bi bi-power mb-1",
+      label: "Deactivated",
+      active: location.pathname.includes("/deactivated"),
+    },
   ];
 
   return (

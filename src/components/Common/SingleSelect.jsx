@@ -93,9 +93,21 @@ const SingleSelect = ({
   const formatValue = () => {
     if (!value) return null;
 
+    // Tìm option matching với value hiện tại
+    const formattedOptions = formatOptions();
+    const matchingOption = formattedOptions.find(
+      (option) => String(option.value) === String(value)
+    );
+
+    if (matchingOption) {
+      return matchingOption;
+    }
+
+    // Fallback cho string values
     if (typeof value === "string") {
       return { value: value, label: value };
     }
+
     return value;
   };
 

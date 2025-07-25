@@ -5,9 +5,10 @@ import DataTable from "../Common/DataTable";
 import Pagination from "../Common/Pagination";
 import axiosInstance from "../../api/axiosInstance";
 import { isAuthenticated } from "../../utils/authUtils";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const ProjectManagement = () => {
+  const navigate = useNavigate();
   const [searchValues, setSearchValues] = useState({
     name: "",
     active: "",
@@ -92,16 +93,13 @@ const ProjectManagement = () => {
         return;
       }
 
-      const response = await axiosInstance.get(
-        "http://localhost:8080/api/projects/search?",
-        {
-          params: {
-            page: currentPage - 1,
-            size: 10,
-            query: generateQuery(),
-          },
-        }
-      );
+      const response = await axiosInstance.get("/api/projects/search?", {
+        params: {
+          page: currentPage - 1,
+          size: 10,
+          query: generateQuery(),
+        },
+      });
 
       if (response.data) {
         setProjects(response.data.content);
@@ -140,15 +138,33 @@ const ProjectManagement = () => {
   };
 
   const handleView = (project) => {
-    console.log("View project:", project);
+    navigate(`/dashboard/projects/view/${project.id}`);
   };
 
-  const handleEdit = (project) => {
-    console.log("Edit project:", project);
+  const handleDeactive = async (item) => {
+    if (confirm(`Are you sure you want to deactive "${item.name}"?`)) {
+      try {
+        await axiosInstance.delete(`/api/projects/deactivate/${item.id}`);
+        alert("Deactive successful!");
+        loadProjects();
+      } catch (err) {
+        alert("Deactive failed.");
+        console.error(err);
+      }
+    }
   };
 
-  const handleDelete = (project) => {
-    console.log("Delete project:", project);
+  const handleMoveToTrash = async (item) => {
+    if (confirm(`Are you sure you want to move "${item.name}" to trash?`)) {
+      try {
+        await axiosInstance.delete(`/api/projects/moveToTrash/${item.id}`);
+        alert("Move to trash successful!");
+        loadProjects();
+      } catch (err) {
+        alert("Move to trash failed.");
+        console.error(err);
+      }
+    }
   };
 
   const handlePageChange = (page) => {
@@ -157,9 +173,7 @@ const ProjectManagement = () => {
 
   return (
     <DashboardLayout>
-      {(!localStorage.getItem("authToken") ||
-        !localStorage.getItem("tokenExpiredAt") ||
-        Date.now() >= Number(localStorage.getItem("tokenExpiredAt"))) && (
+      {!isAuthenticated() && (
         <div className="alert alert-danger mb-4" role="alert">
           <i className="bi bi-shield-exclamation me-2"></i>
           <strong>Authentication Required:</strong> Please log in to view
@@ -201,8 +215,8 @@ const ProjectManagement = () => {
         columns={tableColumns}
         data={projects}
         onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDeactive={(row) => handleDeactive(row)}
+        onDelete={(row) => handleMoveToTrash(row)}
         isLoading={isLoading}
         emptyMessage={
           !isAuthenticated()
