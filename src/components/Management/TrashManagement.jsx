@@ -289,8 +289,8 @@ const TrashManagement = () => {
       />
 
       {/* Info */}
-      <div className="alert alert-info mb-4">
-        <i className="bi bi-info-circle me-2"></i>
+      <div className="alert alert-success mb-4">
+        <i className="bi bi-trash3 me-2"></i>
         Items in trash will be permanently deleted after 30 days.
       </div>
 

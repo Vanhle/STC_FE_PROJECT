@@ -36,7 +36,7 @@ const BuildingManagement = () => {
     },
   ];
 
-  //bảng giá trị ( key là tên cột json trả về)
+  // value table (key is the name of the column returned by json)
   const tableColumns = [
     {
       key: "id",
@@ -50,13 +50,11 @@ const BuildingManagement = () => {
       key: "projectName",
       label: "Project Name",
       width: "100px",
-      render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
       key: "name",
       label: "Building Name",
       width: "150px",
-      render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
       key: "numberOfBasements",
@@ -118,16 +116,13 @@ const BuildingManagement = () => {
         return;
       }
 
-      const response = await axiosInstance.get(
-        "/api/buildings/search?",
-        {
-          params: {
-            page: currentPage - 1,
-            size: 10,
-            query: generateQuery(),
-          },
-        }
-      );
+      const response = await axiosInstance.get("/api/buildings/search?", {
+        params: {
+          page: currentPage - 1,
+          size: 10,
+          query: generateQuery(),
+        },
+      });
 
       if (response.data) {
         setBuildings(response.data.content);

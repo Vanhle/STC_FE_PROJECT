@@ -232,18 +232,18 @@ const AddressSelector = ({
           }}
           disabled={disabled}
         >
-          <option value="">Chọn quận/huyện</option>
+          <option value="">Select district</option>
           {districtData.map((districtName, index) => (
             <option key={index} value={districtName}>
               Q. {districtName}
             </option>
           ))}
         </select>
-        <small className="text-muted">Chọn quận/huyện trước</small>
+        <small className="text-muted">Select a district first</small>
         {error && !district && (
           <div className="text-danger small mt-1">
             <i className="bi bi-exclamation-circle me-1"></i>
-            Vui lòng chọn quận/huyện
+            Please select a district
           </div>
         )}
       </div>
@@ -257,18 +257,18 @@ const AddressSelector = ({
             onChange={(e) => setWard(e.target.value)}
             disabled={disabled}
           >
-            <option value="">Chọn phường/xã</option>
+            <option value="">Select ward</option>
             {availableWards.map((wardName, index) => (
               <option key={index} value={wardName}>
                 P. {wardName}
               </option>
             ))}
           </select>
-          <small className="text-muted">Chọn phường/xã trong {district}</small>
+          <small className="text-muted">Select a ward in {district}</small>
           {error && !ward && (
             <div className="text-danger small mt-1">
               <i className="bi bi-exclamation-circle me-1"></i>
-              Vui lòng chọn phường/xã
+              Please select a ward
             </div>
           )}
         </div>
@@ -281,7 +281,7 @@ const AddressSelector = ({
             <input
               type="text"
               className={`form-control ${error ? "is-invalid" : ""}`}
-              placeholder="Nhập địa chỉ cụ thể (số nhà, tên đường, tên tòa nhà...)"
+              placeholder="Enter specific address (house number, street, building...)"
               value={specificAddress}
               onChange={(e) => setSpecificAddress(e.target.value)}
               list="address-suggestions"
@@ -294,12 +294,12 @@ const AddressSelector = ({
             </datalist>
           </div>
           <small className="text-muted">
-            Nhập địa chỉ cụ thể (số nhà, tên đường, tên tòa nhà...)
+            Enter specific address (house number, street, building...)
           </small>
           {error && !specificAddress && (
             <div className="text-danger small mt-1">
               <i className="bi bi-exclamation-circle me-1"></i>
-              Vui lòng nhập địa chỉ cụ thể
+              Please enter a specific address
             </div>
           )}
         </div>
@@ -310,7 +310,7 @@ const AddressSelector = ({
         <div className="mt-2 p-3 bg-light rounded border-start border-primary border-4">
           <small className="text-muted fw-semibold">
             <i className="bi bi-eye me-1"></i>
-            Preview địa chỉ:
+            Address preview:
           </small>
           <div className="text-primary fw-medium fs-6 mt-1">
             {specificAddress && specificAddress}
@@ -323,7 +323,7 @@ const AddressSelector = ({
           {specificAddress && ward && district && (
             <small className="text-success">
               <i className="bi bi-check-circle me-1"></i>
-              Địa chỉ hoàn tất
+              Address complete
             </small>
           )}
         </div>

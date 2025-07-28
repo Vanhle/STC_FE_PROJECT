@@ -20,7 +20,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email.trim()) {
-      setError("Email là bắt buộc");
+      setError("Email is required");
       return;
     }
     setIsLoading(true);
@@ -28,17 +28,17 @@ const ForgotPassword = () => {
     try {
       const res = await axiosInstance.post("/auth/forgotpassword", { email });
       if (res.data && res.data.status === 200) {
-        showToast(res.data.message || "Mã OTP đã được gửi đến email của bạn", {
+        showToast(res.data.message || "OTP code has been sent to your email", {
           type: "success",
         });
         navigate("/reset-password", { state: { email } });
       } else {
-        showToast(res.data.message || "Gửi mã OTP thất bại!", {
+        showToast(res.data.message || "Failed to send OTP code!", {
           type: "error",
         });
       }
     } catch (err) {
-      showToast(err.response?.data?.message || "Gửi mã OTP thất bại!", {
+      showToast(err.response?.data?.message || "Failed to send OTP code!", {
         type: "error",
       });
     } finally {
@@ -47,10 +47,12 @@ const ForgotPassword = () => {
   };
 
   return (
-    <AuthLayout subtitle="Quên mật khẩu? Nhập email để nhận mã OTP đặt lại mật khẩu">
+    <AuthLayout subtitle="Forgot password? Enter your email to receive an OTP code to reset your password">
       <div className="text-center mb-4">
-        <h2 className="fw-bold text-dark mb-2">Quên mật khẩu</h2>
-        <p className="text-muted">Vui lòng nhập email để nhận mã OTP</p>
+        <h2 className="fw-bold text-dark mb-2">Forgot Password</h2>
+        <p className="text-muted">
+          Please enter your email to receive an OTP code
+        </p>
       </div>
       <form onSubmit={handleSubmit}>
         <Input
@@ -76,10 +78,10 @@ const ForgotPassword = () => {
                   className="spinner-border spinner-border-sm me-2"
                   role="status"
                 ></span>
-                Đang gửi mã...
+                Sending code...
               </>
             ) : (
-              "Gửi mã OTP"
+              "Send OTP code"
             )}
           </Button>
         </div>
@@ -89,7 +91,7 @@ const ForgotPassword = () => {
           to="/login"
           className="text-primary text-decoration-none fw-semibold"
         >
-          ← Quay về đăng nhập
+          ← Back to login
         </Link>
       </div>
     </AuthLayout>

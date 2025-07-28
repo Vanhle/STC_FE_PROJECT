@@ -20,7 +20,7 @@ const StatisticsDashboard = () => {
       )}
 
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h5 className="text-muted mb-0">Dashboard Thống kê</h5>
+        <h5 className="text-muted mb-0">Statistics Dashboard</h5>
         <button
           className="btn btn-outline-primary btn-sm d-flex align-items-center"
           onClick={() => window.location.reload()}
@@ -50,11 +50,9 @@ const StatisticsDashboard = () => {
                 <div>
                   <h6 className="card-title mb-0 fw-bold fs-6">
                     <i className="bi bi-bar-chart-line me-2"></i>
-                    Xu hướng dự án theo năm
+                    Project Trend by Year
                   </h6>
-                  <small className="opacity-75">
-                    Biểu đồ kết hợp cột và đường
-                  </small>
+                  <small className="opacity-75">Bar chart</small>
                 </div>
               </div>
             </div>
@@ -72,11 +70,9 @@ const StatisticsDashboard = () => {
                 <div>
                   <h6 className="card-title mb-0 fw-bold fs-6">
                     <i className="bi bi-pie-chart-fill me-2"></i>
-                    Phân bố theo quận/huyện
+                    Distribution by District
                   </h6>
-                  <small className="opacity-75">
-                    Biểu đồ tròn theo khu vực
-                  </small>
+                  <small className="opacity-75">Area-based pie chart</small>
                 </div>
               </div>
             </div>
@@ -94,7 +90,7 @@ const StatisticsDashboard = () => {
             <div className="card-header bg-light border-0">
               <h6 className="card-title mb-0 text-dark fs-6">
                 <i className="bi bi-lightbulb me-2 text-warning"></i>
-                Phân tích và Insights
+                Analysis and Insights
               </h6>
             </div>
             <div className="card-body">
@@ -106,11 +102,11 @@ const StatisticsDashboard = () => {
                     </div>
                     <div>
                       <h6 className="fw-semibold text-dark mb-1 small">
-                        Xu hướng tăng trưởng
+                        Growth Trend
                       </h6>
                       <p className="text-muted small mb-0">
-                        Biểu đồ cho thấy xu hướng phát triển dự án qua các năm,
-                        giúp dự báo và lập kế hoạch cho giai đoạn tới.
+                        The chart shows the project development trend over the
+                        years, helping to forecast and plan for the next period.
                       </p>
                     </div>
                   </div>
@@ -122,11 +118,11 @@ const StatisticsDashboard = () => {
                     </div>
                     <div>
                       <h6 className="fw-semibold text-dark mb-1 small">
-                        Phân bố địa lý
+                        Geographical Distribution
                       </h6>
                       <p className="text-muted small mb-0">
-                        Phân tích mật độ dự án theo quận/huyện để xác định các
-                        khu vực tiềm năng và cơ hội đầu tư.
+                        Analyze project density by district to identify
+                        potential areas and investment opportunities.
                       </p>
                     </div>
                   </div>

@@ -17,7 +17,7 @@ const ViewApartment = () => {
   const [formData, setFormData] = useState({
     id: "",
     buildingId: "", // Add buildingId for backend update
-    buildingName: "",
+    buildingCode: "",
     code: "",
     name: "",
     atFloor: "",
@@ -73,16 +73,16 @@ const ViewApartment = () => {
 
       // Extract buildingId and buildingName from API response
       const buildingId = apartment.buildingId?.toString() || "";
-      const buildingName = apartment.buildingName || "";
+      const buildingCode = apartment.buildingCode || "";
 
       console.log("Apartment response:", apartment); // Debug log
       console.log("Extracted buildingId:", buildingId); // Debug log
-      console.log("Extracted buildingName:", buildingName); // Debug log
+      console.log("Extracted buildingName:", buildingCode); // Debug log
 
       const formattedData = {
         id: apartment.id || "",
         buildingId: buildingId,
-        buildingName: buildingName,
+        buildingCode: buildingCode,
         code: apartment.code || "",
         name: apartment.name || "",
         atFloor: apartment.atFloor?.toString() || "",
@@ -350,12 +350,12 @@ const ViewApartment = () => {
 
                   <div className="col-md-6 mb-3">
                     <Input
-                      label="Building Name"
+                      label="Building Code"
                       type="text"
-                      name="buildingName"
-                      value={formData.buildingName}
+                      name="buildingCode"
+                      value={formData.buildingCode}
                       onChange={handleInputChange}
-                      placeholder="Building Name"
+                      placeholder="Building Code"
                       disabled={true}
                       icon="bi bi-buildings"
                     />
@@ -363,29 +363,31 @@ const ViewApartment = () => {
                 </div>
 
                 <div className="row">
-                  <div className="col-md-6 mb-3">
+                  <div className="col-md-12 mb-3">
                     <Input
                       label="Apartment Code"
                       type="text"
                       name="code"
                       value={formData.code}
                       onChange={handleInputChange}
-                      placeholder="Enter apartment code"
+                      placeholder={`Must be unique and contain Building code ( example: ${formData.buildingCode} APT1 )`}
                       required
                       error={errors.code}
                       icon="bi bi-code-slash"
                       disabled={!isEditMode}
                     />
                   </div>
+                </div>
 
-                  <div className="col-md-6 mb-3">
+                <div className="row">
+                  <div className="col-md-12 mb-3">
                     <Input
                       label="Apartment Name"
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      placeholder="Enter apartment name"
+                      placeholder={`Must be unique ( example: Căn hộ 1 - ${formData.buildingCode} )`}
                       required
                       error={errors.name}
                       icon="bi bi-door-open"

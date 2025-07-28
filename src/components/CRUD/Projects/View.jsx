@@ -329,7 +329,7 @@ const ViewProject = () => {
                 </h6>
 
                 <div className="row">
-                  <div className="col-md-3 mb-3">
+                  <div className="col-md-6 mb-3">
                     <Input
                       label="Project ID"
                       type="text"
@@ -342,29 +342,30 @@ const ViewProject = () => {
                     />
                   </div>
 
-                  <div className="col-md-3 mb-3">
+                  <div className="col-md-6 mb-3">
                     <Input
                       label="Project Code"
                       type="text"
                       name="code"
                       value={formData.code}
                       onChange={handleInputChange}
-                      placeholder="Enter project code"
+                      placeholder="Enter project code (must be unique)"
                       required
                       error={errors.code}
                       icon="bi bi-code-slash"
                       disabled={!isEditMode}
                     />
                   </div>
-
-                  <div className="col-md-3 mb-3">
+                </div>
+                <div className="row">
+                  <div className="col-md-6 mb-3">
                     <Input
                       label="Project Name"
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      placeholder="Enter project name"
+                      placeholder="Enter project name (must be unique)"
                       required
                       error={errors.name}
                       icon="bi bi-building"
@@ -372,7 +373,7 @@ const ViewProject = () => {
                     />
                   </div>
 
-                  <div className="col-md-3 mb-3">
+                  <div className="col-md-6 mb-3">
                     <Input
                       label="Number of Blocks"
                       type="number"

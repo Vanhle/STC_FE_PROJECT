@@ -16,9 +16,9 @@ const StatisticsChart = () => {
 
   useEffect(() => {
     axiosInstance
-      .get("/api/projects/statistics/year") // sửa lại nếu cần prefix như /api/statistics/year
+      .get("/api/projects/statistics/year") // edit if need prefix like /api/statistics/year
       .then((response) => {
-        // Đổi tên 'year' thành 'name' để XAxis hiển thị đúng
+        // Rename 'year' to 'name' so XAxis displays correctly
         const formattedData = response.data.map((item) => ({
           name: item.year.toString(),
           count: item.count,
@@ -26,7 +26,7 @@ const StatisticsChart = () => {
         setData(formattedData);
       })
       .catch((error) => {
-        console.error("Lỗi khi gọi API thống kê:", error);
+        console.error("Error when calling statistics API:", error);
       });
   }, []);
 

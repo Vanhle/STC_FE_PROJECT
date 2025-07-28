@@ -197,7 +197,7 @@ const CreateProject = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      placeholder="Enter project name"
+                      placeholder="Enter project name (must be unique)"
                       required
                       error={errors.name}
                       icon="bi bi-building"

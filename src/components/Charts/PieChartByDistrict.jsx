@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Tạo danh sách màu theo số lượng phần tử
+// Generate color list according to the number of elements
 const generateColors = (count) => {
   const colors = [];
   for (let i = 0; i < count; i++) {
@@ -21,7 +21,7 @@ const generateColors = (count) => {
   return colors;
 };
 
-// Hàm hiển thị phần trăm trên biểu đồ
+// Function to display percentage on the chart
 const renderCustomLabel = (props) => {
   const { cx, cy, midAngle, innerRadius, outerRadius, percent } = props;
   const RADIAN = Math.PI / 180;
@@ -44,12 +44,12 @@ const renderCustomLabel = (props) => {
 };
 
 const PieChartByDistrict = () => {
-  const [data, setData] = useState([]); // lưu danh sách quận và số lượng dự án
-  const [colors, setColors] = useState([]); // danh sách màu
-  const [loading, setLoading] = useState(true); // trạng thái đang tải
-  const [error, setError] = useState(null); // thông báo lỗi (nếu có)
+  const [data, setData] = useState([]); // store district list and project count
+  const [colors, setColors] = useState([]); // color list
+  const [loading, setLoading] = useState(true); // loading state
+  const [error, setError] = useState(null); // error message (if any)
 
-  // Gọi API khi component được mount
+  // Call API when component is mounted
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,20 +57,20 @@ const PieChartByDistrict = () => {
           "/api/projects/statistics/district"
         );
 
-        // Gọi API để lấy dữ liệu thống kê số dự án theo quận.
+        // Call API to get project statistics by district.
         if (!Array.isArray(res.data)) {
-          throw new Error("Dữ liệu trả về không hợp lệ");
+          throw new Error("Returned data is invalid");
         }
 
-        // Kiểm tra dữ liệu trả về có đúng là mảng không.
+        // Check if returned data is an array.
         const filteredData = res.data.filter((item) => item.count > 0);
 
-        // Lọc bỏ các quận có count = 0.
+        // Filter out districts with count = 0.
         setData(filteredData);
         setColors(generateColors(filteredData.length));
       } catch (err) {
-        console.error("❌ API thất bại:", err);
-        setError("Không thể tải dữ liệu");
+        console.error("❌ API failed:", err);
+        setError("Unable to load data");
       } finally {
         setLoading(false);
       }
@@ -79,9 +79,9 @@ const PieChartByDistrict = () => {
     fetchData();
   }, []);
 
-  if (loading) return <div>Đang tải...</div>;
-  if (error) return <div>Lỗi: {error}</div>;
-  if (data.length === 0) return <div>Không có dữ liệu</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (data.length === 0) return <div>No data available</div>;
 
   return (
     <div style={{ width: "100%", height: 220 }}>
@@ -93,9 +93,9 @@ const PieChartByDistrict = () => {
             nameKey="district"
             cx="50%"
             cy="50%"
-            outerRadius={100} // Tăng kích thước biểu đồ tròn
+            outerRadius={100} // Increase the size of the pie chart
             label={renderCustomLabel}
-            labelLine={false} // <-- dòng này sẽ loại bỏ tua rua
+            labelLine={false} // <-- this line will remove the label lines
           >
             {data.map((entry, index) => (
               <Cell

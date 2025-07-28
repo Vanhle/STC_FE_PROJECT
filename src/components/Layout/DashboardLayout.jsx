@@ -4,7 +4,12 @@ import Navbar from "../Common/Navbar";
 
 const DashboardLayout = ({ children }) => {
   return (
-    <div className="bg-light min-vh-100" style={{ position: "relative" }}>
+    <div
+      className="bg-light min-vh-100"
+      style={{
+        position: "relative",
+      }}
+    >
       {/* Fixed Sidebar */}
       <div
         style={{

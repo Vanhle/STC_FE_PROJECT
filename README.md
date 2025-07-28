@@ -178,4 +178,3 @@ Font **Inter** được tải từ Google Fonts với:
 - Display swap cho performance tối ưu
 - Preconnect để tăng tốc loading
 - OpenType features enabled
-

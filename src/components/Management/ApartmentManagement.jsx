@@ -68,7 +68,7 @@ const ApartmentManagement = () => {
     },
   ];
 
-  //bảng giá trị ( key là tên cột json trả về)
+  // value table (key is the name of the column returned by json)
   const tableColumns = [
     {
       key: "id",
@@ -82,13 +82,11 @@ const ApartmentManagement = () => {
       key: "buildingName",
       label: "Building Name",
       width: "180px",
-      render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
       key: "name",
       label: "Apartment Name",
       width: "160px",
-      render: (value) => <span className="fw-semibold">{value}</span>,
     },
     {
       key: "atFloor",

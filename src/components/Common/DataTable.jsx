@@ -8,7 +8,7 @@ const DataTable = ({
   onDeactive,
   onMoveToTrash,
   isLoading = false,
-  emptyMessage = "Không có dữ liệu",
+  emptyMessage = "No data available",
 }) => {
   if (isLoading) {
     return (
@@ -17,7 +17,7 @@ const DataTable = ({
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
-          <p className="mt-3 text-muted">Đang tải dữ liệu...</p>
+          <p className="mt-3 text-muted">Loading data...</p>
         </div>
       </div>
     );

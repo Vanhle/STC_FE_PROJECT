@@ -15,7 +15,7 @@ const StatisticsCards = () => {
       try {
         setStats((prev) => ({ ...prev, loading: true }));
 
-        // Gọi đồng thời 3 API
+        // Call 3 APIs simultaneously
         const [projectRes, buildingRes, districtRes] = await Promise.all([
           axiosInstance.get("/api/projects/project-count"),
           axiosInstance.get("/api/buildings/building-count"),
@@ -30,11 +30,11 @@ const StatisticsCards = () => {
           error: null,
         });
       } catch (error) {
-        console.error("❌ Lỗi khi tải thống kê:", error);
+        console.error("❌ Error loading statistics:", error);
         setStats((prev) => ({
           ...prev,
           loading: false,
-          error: "Không thể tải dữ liệu thống kê",
+          error: "Unable to load statistics data",
         }));
       }
     };
@@ -52,7 +52,7 @@ const StatisticsCards = () => {
                 <div className="spinner-border text-primary mb-2" role="status">
                   <span className="visually-hidden">Loading...</span>
                 </div>
-                <h6 className="text-muted">Đang tải...</h6>
+                <h6 className="text-muted">Loading...</h6>
               </div>
             </div>
           </div>
@@ -72,36 +72,50 @@ const StatisticsCards = () => {
 
   const cardData = [
     {
-      title: "Tổng số dự án",
+      title: "Total Projects",
       count: stats.projectCount,
       icon: "bi bi-diagram-3",
       color: "primary",
       bgColor: "bg-primary",
-      description: "Số lượng dự án hiện có",
+      description: "Current number of projects",
     },
     {
-      title: "Tổng số tòa nhà",
+      title: "Total Buildings",
       count: stats.buildingCount,
       icon: "bi bi-building",
       color: "success",
       bgColor: "bg-success",
-      description: "Số lượng tòa nhà đã xây dựng",
+      description: "Number of buildings constructed",
     },
     {
-      title: "Số quận/huyện",
+      title: "Districts",
       count: stats.districtCount,
       icon: "bi bi-geo-alt",
       color: "info",
       bgColor: "bg-info",
-      description: "Phạm vi hoạt động địa lý",
+      description: "Geographical coverage",
     },
+  ];
+
+  const cardGradients = [
+    // Blue gradient
+    "linear-gradient(135deg, rgb(255,255,255) 0%, rgb(245, 255, 165) 100%)",
+    // Green gradient
+    "linear-gradient(135deg, rgb(255,255,255) 0%, rgb(206, 253, 224) 100%)",
+    // Purple gradient
+    "linear-gradient(135deg, rgb(255,255,255) 0%, rgb(230, 215, 255) 100%)",
   ];
 
   return (
     <div className="row mb-4">
       {cardData.map((card, index) => (
         <div key={index} className="col-12 col-sm-6 col-md-4 mb-3">
-          <div className="card border-0 shadow-sm hover-shadow transition-all">
+          <div
+            className="card border-0 shadow-sm hover-shadow transition-all"
+            style={{
+              background: cardGradients[index],
+            }}
+          >
             <div className="card-body p-3">
               <div className="d-flex align-items-center justify-content-between mb-2">
                 <div

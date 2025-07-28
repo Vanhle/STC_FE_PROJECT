@@ -17,7 +17,7 @@ const ViewBuilding = () => {
   const [formData, setFormData] = useState({
     id: "",
     projectId: "", // Add projectId for backend update
-    projectName: "",
+    projectCode: "",
     code: "",
     name: "",
     numberOfBasements: "",
@@ -74,16 +74,16 @@ const ViewBuilding = () => {
 
       // Extract projectId and projectName from API response
       const projectId = building.projectId?.toString() || "";
-      const projectName = building.projectName || "";
+      const projectCode = building.projectCode || "";
 
       console.log("Building response:", building); // Debug log
       console.log("Extracted projectId:", projectId); // Debug log
-      console.log("Extracted projectName:", projectName); // Debug log
+      console.log("Extracted projectCode:", projectCode); // Debug log
 
       const formattedData = {
         id: building.id || "",
         projectId: projectId,
-        projectName: projectName,
+        projectCode: projectCode,
         code: building.code || "",
         name: building.name || "",
         numberOfBasements: building.numberOfBasements?.toString() || "",
@@ -149,10 +149,6 @@ const ViewBuilding = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.projectId) {
-      newErrors.projectId = "Project ID is missing. Please reload the page.";
-    }
-
     if (!formData.code.trim()) {
       newErrors.code = "Building code is required";
     }
@@ -208,7 +204,6 @@ const ViewBuilding = () => {
       // }
 
       const buildingData = {
-        projectId: parseInt(formData.projectId), // Convert projectName -> projectId for backend
         code: formData.code,
         name: formData.name,
         numberOfBasements: parseInt(formData.numberOfBasements),
@@ -218,7 +213,7 @@ const ViewBuilding = () => {
       };
 
       console.log("FormData projectId (from projectName):", formData.projectId); // Debug log
-      console.log("FormData projectName:", formData.projectName); // Debug log
+      console.log("FormData projectCode:", formData.projectCode); // Debug log
       console.log("Converted projectId:", parseInt(formData.projectId)); // Debug log
       console.log("Final building data for backend:", buildingData); // Debug log
 
@@ -351,12 +346,12 @@ const ViewBuilding = () => {
 
                   <div className="col-md-6 mb-3">
                     <Input
-                      label="Project Name"
+                      label="Project Code"
                       type="text"
-                      name="projectName"
-                      value={formData.projectName}
+                      name="projectCode"
+                      value={formData.projectCode}
                       onChange={handleInputChange}
-                      placeholder="Project Name"
+                      placeholder="Project Code"
                       disabled={true}
                       icon="bi bi-building-gear"
                     />
@@ -364,29 +359,31 @@ const ViewBuilding = () => {
                 </div>
 
                 <div className="row">
-                  <div className="col-md-6 mb-3">
+                  <div className="col-md-12 mb-3">
                     <Input
                       label="Building Code"
                       type="text"
                       name="code"
                       value={formData.code}
                       onChange={handleInputChange}
-                      placeholder="Enter building code"
+                      placeholder={`Must be unique and contain Project code (example: ${formData.projectCode} B1)`}
                       required
                       error={errors.code}
                       icon="bi bi-code-slash"
                       disabled={!isEditMode}
                     />
                   </div>
+                </div>
 
-                  <div className="col-md-6 mb-3">
+                <div className="row">
+                  <div className="col-md-12 mb-3">
                     <Input
                       label="Building Name"
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      placeholder="Enter building name"
+                      placeholder={`Must be unique ( example: Tòa nhà B1 - ${formData.projectCode} )`}
                       required
                       error={errors.name}
                       icon="bi bi-buildings"

@@ -285,7 +285,7 @@ const CreateApartment = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      placeholder={`Enter apartment name ( example: Căn hộ 2 - ${buildingCode} )`}
+                      placeholder={`Must be unique ( example: Căn hộ 1 - ${buildingCode} )`}
                       required
                       error={errors.name}
                       icon="bi bi-door-open"

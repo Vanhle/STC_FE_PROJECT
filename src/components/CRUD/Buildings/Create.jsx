@@ -282,7 +282,7 @@ const CreateBuilding = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      placeholder={`Enter building name ( example: Tòa nhà B1 - ${projectCode} )`}
+                      placeholder={`Must be unique ( example: Tòa nhà B1 - ${projectCode} )`}
                       required
                       error={errors.name}
                       icon="bi bi-buildings"
