@@ -54,16 +54,16 @@ const ResetPassword = () => {
     e.preventDefault();
     // Validate đơn giản
     const newErrors = {};
-    if (!formData.email) newErrors.email = "Email là bắt buộc";
+    if (!formData.email) newErrors.email = "Email is required";
     if (!formData.otp || formData.otp.length !== 6)
-      newErrors.otp = "OTP phải đủ 6 số";
-    if (!formData.password) newErrors.password = "Mật khẩu mới là bắt buộc";
+      newErrors.otp = "OTP must be 6 digits";
+    if (!formData.password) newErrors.password = "New password is required";
     if (formData.password.length < 6)
-      newErrors.password = "Mật khẩu phải ít nhất 6 ký tự";
+      newErrors.password = "Password must be at least 6 characters";
     if (!formData.confirmPassword)
-      newErrors.confirmPassword = "Xác nhận mật khẩu là bắt buộc";
+      newErrors.confirmPassword = "Confirm new password is required";
     if (formData.password !== formData.confirmPassword)
-      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp";
+      newErrors.confirmPassword = "Passwords do not match";
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -78,17 +78,17 @@ const ResetPassword = () => {
       };
       const res = await axiosInstance.post("/auth/resetpassword", payload);
       if (res.data && res.data.status === 200) {
-        showToast(res.data.message || "Đặt lại mật khẩu thành công", {
+        showToast(res.data.message || "Password reset successful", {
           type: "success",
         });
         navigate("/login");
       } else {
-        showToast(res.data.message || "Đặt lại mật khẩu thất bại!", {
+        showToast(res.data.message || "Password reset failed!", {
           type: "error",
         });
       }
     } catch (err) {
-      showToast(err.response?.data?.message || "Đặt lại mật khẩu thất bại!", {
+      showToast(err.response?.data?.message || "Password reset failed!", {
         type: "error",
       });
     } finally {
@@ -102,29 +102,29 @@ const ResetPassword = () => {
       const payload = { email: formData.email, isReset: true };
       const res = await axiosInstance.post("/auth/resendotp", payload);
       if (res.data && res.data.status === 200) {
-        showToast(res.data.message || "Đã gửi lại mã OTP!", {
+        showToast(res.data.message || "OTP resent!", {
           type: "success",
         });
         setResendTimer(60);
         setCanResend(false);
       } else {
-        showToast(res.data.message || "Gửi lại OTP thất bại!", {
+        showToast(res.data.message || "Failed to resend OTP!", {
           type: "error",
         });
       }
     } catch (error) {
-      showToast(error.response?.data?.message || "Gửi lại OTP thất bại!", {
+      showToast(error.response?.data?.message || "Failed to resend OTP!", {
         type: "error",
       });
     }
   };
 
   return (
-    <AuthLayout subtitle="Đặt lại mật khẩu cho tài khoản của bạn">
+    <AuthLayout subtitle="Reset password for your account">
       <div className="text-center mb-4">
-        <h2 className="fw-bold text-dark mb-2">Đặt lại mật khẩu</h2>
+        <h2 className="fw-bold text-dark mb-2">Reset Password</h2>
         <p className="text-muted">
-          Vui lòng nhập thông tin để đặt lại mật khẩu
+          Please enter your information to reset your password
         </p>
       </div>
       <form onSubmit={handleSubmit}>
@@ -142,7 +142,7 @@ const ResetPassword = () => {
           <Input
             type="text"
             name="otp"
-            placeholder="Mã OTP"
+            placeholder="OTP"
             value={formData.otp}
             onChange={handleChange}
             icon="bi bi-shield-lock"
@@ -160,11 +160,11 @@ const ResetPassword = () => {
                 size="sm"
                 onClick={handleResendOTP}
               >
-                Gửi lại mã OTP
+                Resend OTP
               </Button>
             ) : (
               <span className="text-muted" style={{ fontSize: 14 }}>
-                Gửi lại mã sau {resendTimer}s
+                Resend in {resendTimer}s
               </span>
             )}
           </div>
@@ -172,7 +172,7 @@ const ResetPassword = () => {
         <Input
           type="password"
           name="password"
-          placeholder="Mật khẩu mới"
+          placeholder="New Password"
           value={formData.password}
           onChange={handleChange}
           icon="bi bi-lock"
@@ -181,7 +181,7 @@ const ResetPassword = () => {
         <Input
           type="password"
           name="confirmPassword"
-          placeholder="Xác nhận mật khẩu mới"
+          placeholder="Confirm New Password"
           value={formData.confirmPassword}
           onChange={handleChange}
           icon="bi bi-lock-fill"
@@ -201,10 +201,10 @@ const ResetPassword = () => {
                   className="spinner-border spinner-border-sm me-2"
                   role="status"
                 ></span>
-                Đang xử lý...
+                Processing...
               </>
             ) : (
-              "Đặt lại mật khẩu"
+              "Reset Password"
             )}
           </Button>
         </div>
@@ -214,7 +214,7 @@ const ResetPassword = () => {
           to="/login"
           className="text-primary text-decoration-none fw-semibold"
         >
-          ← Quay về đăng nhập
+          ← Back to Login
         </Link>
       </div>
     </AuthLayout>

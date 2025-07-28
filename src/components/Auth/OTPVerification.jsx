@@ -77,7 +77,7 @@ const OTPVerification = () => {
     e.preventDefault();
     const otpString = otp.join("");
     if (otpString.length !== 6) {
-      setError("Vui lòng nhập đầy đủ 6 số");
+      setError("Please enter all 6 digits");
       return;
     }
     setIsLoading(true);
@@ -89,17 +89,17 @@ const OTPVerification = () => {
       };
       const res = await axiosInstance.post("/auth/verifyotp", payload);
       if (res.data && res.data.status === 200) {
-        showToast(res.data.message || "Xác thực OTP thành công!", {
+        showToast(res.data.message || "OTP verification successful!", {
           type: "success",
         });
         navigate("/login");
       } else {
-        showToast(res.data.message || "Xác thực OTP thất bại!", {
+        showToast(res.data.message || "OTP verification failed!", {
           type: "error",
         });
       }
     } catch (err) {
-      showToast(err.response?.data?.message || "Xác thực OTP thất bại!", {
+      showToast(err.response?.data?.message || "OTP verification failed!", {
         type: "error",
       });
     } finally {
@@ -113,7 +113,7 @@ const OTPVerification = () => {
       const payload = { email, isReset: false };
       const res = await axiosInstance.post("/auth/resendotp", payload);
       if (res.data && res.data.status === 200) {
-        showToast(res.data.message || "Đã gửi lại mã OTP!", {
+        showToast(res.data.message || "OTP resent!", {
           type: "success",
         });
         setResendTimer(60);
@@ -121,12 +121,12 @@ const OTPVerification = () => {
         setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       } else {
-        showToast(res.data.message || "Gửi lại OTP thất bại!", {
+        showToast(res.data.message || "Failed to resend OTP!", {
           type: "error",
         });
       }
     } catch (error) {
-      showToast(error.response?.data?.message || "Gửi lại OTP thất bại!", {
+      showToast(error.response?.data?.message || "Failed to resend OTP!", {
         type: "error",
       });
     }
@@ -135,9 +135,9 @@ const OTPVerification = () => {
   return (
     <AuthLayout subtitle="Xác thực tài khoản để tiếp tục">
       <div className="text-center mb-4">
-        <h2 className="fw-bold text-dark mb-2">Xác nhận OTP</h2>
+        <h2 className="fw-bold text-dark mb-2">OTP Verification</h2>
         <p className="text-muted mb-3">
-          Chúng tôi đã gửi mã xác thực 6 số đến
+          We have sent a 6-digit verification code to
           <br />
           <strong>{email}</strong>
         </p>
@@ -186,10 +186,10 @@ const OTPVerification = () => {
                   className="spinner-border spinner-border-sm me-2"
                   role="status"
                 ></span>
-                Đang xác thực...
+                Verifying...
               </>
             ) : (
-              "Xác nhận OTP"
+              "Verify OTP"
             )}
           </Button>
         </div>
@@ -201,15 +201,15 @@ const OTPVerification = () => {
               className="btn btn-link text-primary text-decoration-none p-0"
               onClick={handleResendOTP}
             >
-              Gửi lại mã OTP
+              Resend OTP
             </button>
           ) : (
-            <span className="text-muted">Gửi lại mã sau {resendTimer}s</span>
+            <span className="text-muted">Resend in {resendTimer}s</span>
           )}
         </div>
         <div className="text-center">
           <Link to="/login" className="text-muted text-decoration-none">
-            ← Quay lại đăng nhập
+            ← Back to Login
           </Link>
         </div>
       </form>
