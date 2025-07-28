@@ -71,7 +71,7 @@ const Login = () => {
           localStorage.setItem("tokenExpiredAt", expiredAt);
         }
         // Redirect
-        navigate("/dashboard", { replace: true });
+        navigate("/dashboard/statistics", { replace: true });
       } else if (result.status === 400 && Array.isArray(result.data)) {
         // Validation error
         const fieldErrors = {};

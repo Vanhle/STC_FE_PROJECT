@@ -6,6 +6,12 @@ const Sidebar = () => {
 
   const menuItems = [
     {
+      path: "/dashboard/statistics",
+      icon: "bi bi-graph-up",
+      label: "Statistics",
+      active: location.pathname.includes("/statistics"),
+    },
+    {
       path: "/dashboard/projects",
       icon: "bi bi-diagram-3",
       label: "Project",
@@ -29,6 +35,12 @@ const Sidebar = () => {
       label: "Trash",
       active: location.pathname.includes("/trash"),
     },
+    {
+      path: "/dashboard/deactivated",
+      icon: "bi bi-power mb-1",
+      label: "Deactivated",
+      active: location.pathname.includes("/deactivated"),
+    },
   ];
 
   return (
@@ -37,27 +49,48 @@ const Sidebar = () => {
       style={{ width: "250px", minHeight: "100vh" }}
     >
       {/* Sidebar Header */}
-      <div className="sidebar-header p-3 border-bottom">
+      <div
+        className="sidebar-header p-3 border-bottom position-relative"
+        style={{
+          background:
+            "linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(194, 241, 255) 100%)",
+          borderBottom: "none !important",
+        }}
+      >
         <Link
-          to="/dashboard"
+          to="/dashboard/statistics"
           className="text-decoration-none"
           style={{ fontFamily: "'Inter', sans-serif" }}
         >
-          <h4 className="text-primary fw-bold mb-0">STC-Building Management</h4>
+          <div className="flex-grow-1 text-center">
+            <h5
+              className="fw-bold mb-0"
+              style={{
+                fontSize: "18px",
+                letterSpacing: "-0.5px",
+                color: "#1e40af",
+              }}
+            >
+              STC-Building
+            </h5>
+            <p className="mb-0" style={{ fontSize: "12px", color: "#3b82f6" }}>
+              Management System
+            </p>
+          </div>
         </Link>
       </div>
 
       {/* Sidebar Menu */}
-      <div className="sidebar-menu p-3">
+      <div className="sidebar-menu">
         <nav>
-          <ul className="list-unstyled">
+          <ul className="list-unstyled m-0">
             {menuItems.map((item, index) => (
-              <li key={index} className="mb-2">
+              <li key={index}>
                 <Link
                   to={item.path}
-                  className={`d-flex align-items-center p-3 rounded text-decoration-none transition-all ${
+                  className={`d-flex align-items-center py-3 px-4 text-decoration-none transition-all ${
                     item.active
-                      ? "bg-primary text-white shadow-sm"
+                      ? "bg-primary text-white"
                       : "text-muted hover-bg-light"
                   }`}
                   style={{
@@ -65,6 +98,8 @@ const Sidebar = () => {
                     fontWeight: item.active ? "600" : "500",
                     fontSize: "15px",
                     transition: "all 0.3s ease",
+                    display: "block",
+                    width: "100%",
                   }}
                 >
                   <i
@@ -79,7 +114,7 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      {/* Sidebar Footer */}
+      {/* Sidebar Footer
       <div className="sidebar-footer mt-auto p-3 border-top">
         <div className="d-flex align-items-center">
           <div
@@ -95,7 +130,7 @@ const Sidebar = () => {
             <small className="text-muted">Building Manager</small>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

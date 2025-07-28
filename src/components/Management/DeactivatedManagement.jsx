@@ -5,7 +5,7 @@ import Pagination from "../Common/Pagination";
 import axiosInstance from "../../api/axiosInstance";
 import { isAuthenticated } from "../../utils/authUtils";
 
-const TrashManagement = () => {
+const DeactivatedManagement = () => {
   const [searchValues, setSearchValues] = useState({
     name: "",
     type: "",
@@ -13,7 +13,7 @@ const TrashManagement = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [trashItems, setTrashItems] = useState([]);
+  const [deactivatedItems, setDeactivatedItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
 
   const searchFields = [
@@ -61,21 +61,21 @@ const TrashManagement = () => {
     {
       key: "active",
       label: "Status",
-      width: "90px",
+      width: "50px",
       render: () => (
         <span
-          className="badge bg-danger d-flex align-items-center gap-1"
+          className="badge bg-warning d-flex align-items-center gap-1"
           style={{ width: "fit-content" }}
         >
-          <i className="bi bi-trash3" style={{ fontSize: "12px" }}></i>
-          Deleted
+          <i className="bi bi-pause-circle" style={{ fontSize: "12px" }}></i>
+          Deactivated
         </span>
       ),
     },
     {
-      key: "deletedAt",
-      label: "Deleted Date",
-      width: "120px",
+      key: "updatedAt",
+      label: "Deactivated Date",
+      width: "160px",
       render: (value) => {
         const date = new Date(value);
         return isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-US");
@@ -83,23 +83,23 @@ const TrashManagement = () => {
     },
     {
       key: "updatedBy",
-      label: "Deleted By",
-      width: "100px",
+      label: "Deactivated By",
+      width: "140px",
     },
   ];
 
   // Load data from API
   useEffect(() => {
     if (isAuthenticated()) {
-      loadTrashItems();
+      loadDeactivatedItems();
     }
   }, [currentPage, searchValues]);
 
   const generateQuery = () => {
     const conditions = [];
 
-    // Always filter active = 0 for trash
-    conditions.push("active==0");
+    // Always filter active = 2 for deactivated items
+    conditions.push("active==2");
 
     if (searchValues.name) {
       conditions.push(`name=="*${searchValues.name}*"`);
@@ -108,19 +108,19 @@ const TrashManagement = () => {
     return conditions.join(";");
   };
 
-  const loadTrashItems = async () => {
+  const loadDeactivatedItems = async () => {
     setIsLoading(true);
     try {
       if (!isAuthenticated()) {
         console.error("Authentication required");
-        setTrashItems([]);
+        setDeactivatedItems([]);
         setTotalItems(0);
         return;
       }
 
       const type = searchValues.type;
       if (!type) {
-        setTrashItems([]);
+        setDeactivatedItems([]);
         setTotalItems(0);
         return;
       }
@@ -134,15 +134,15 @@ const TrashManagement = () => {
       });
 
       if (response.data) {
-        setTrashItems(response.data.content);
+        setDeactivatedItems(response.data.content);
         setTotalItems(response.data.totalElements);
       } else {
-        setTrashItems([]);
+        setDeactivatedItems([]);
         setTotalItems(0);
       }
     } catch (error) {
-      console.error("Error loading trash items:", error);
-      setTrashItems([]);
+      console.error("Error loading deactivated items:", error);
+      setDeactivatedItems([]);
       setTotalItems(0);
     } finally {
       setIsLoading(false);
@@ -170,8 +170,8 @@ const TrashManagement = () => {
     setCurrentPage(page);
   };
 
-  const handleRestore = async (item) => {
-    if (confirm(`Are you sure you want to restore "${item.name}"?`)) {
+  const handleReactivate = async (item) => {
+    if (confirm(`Are you sure you want to reactivate "${item.name}"?`)) {
       const type = searchValues.type;
       if (!type) {
         alert("Please select a type first.");
@@ -179,20 +179,36 @@ const TrashManagement = () => {
       }
       try {
         await axiosInstance.put(`/api/${type}/restore/${item.id}`);
-        alert("Restore successful!");
-        loadTrashItems();
+        alert("Reactivate successful!");
+        loadDeactivatedItems();
       } catch (err) {
-        alert("Restore failed.");
+        alert("Reactivate failed.");
         console.error(err);
       }
     }
   };
 
-  const handlePermanentDelete = async (item) => {
+  const handleMoveToTrash = async (item) => {
+    if (confirm(`Are you sure you want to move "${item.name}" to trash?`)) {
+      const type = searchValues.type;
+      if (!type) {
+        alert("Please select a type first.");
+        return;
+      }
+      try {
+        await axiosInstance.delete(`/api/${type}/moveToTrash/${item.id}`);
+        alert("Move to trash successful!");
+        loadDeactivatedItems();
+      } catch (err) {
+        alert("Move to trash failed.");
+        console.error(err);
+      }
+    }
+  };
+
+  const handleMoveAllDeactivatedToTrash = async () => {
     if (
-      confirm(
-        `Are you sure you want to permanently delete "${item.name}"? This action cannot be undone!`
-      )
+      confirm("Are you sure you want to move all deactivated items to trash?")
     ) {
       const type = searchValues.type;
       if (!type) {
@@ -200,53 +216,29 @@ const TrashManagement = () => {
         return;
       }
       try {
-        await axiosInstance.delete(
-          `/api/${type}/trash/permanentDelete/${item.id}`
-        );
-        alert("Permanent deletion successful!");
-        loadTrashItems();
+        await axiosInstance.delete(`/api/${type}/moveDeactivateToTrashAll`);
+        alert("All deactivated items moved to trash successfully!");
+        loadDeactivatedItems();
       } catch (err) {
-        alert("Permanent deletion failed.");
+        alert("Failed to move all items to trash.");
         console.error(err);
       }
     }
   };
 
-  const handleRestoreAll = async () => {
-    if (confirm("Are you sure you want to restore all items in the trash?")) {
+  const handleActivateAll = async () => {
+    if (confirm("Are you sure you want to reactivate all deactivated items?")) {
       const type = searchValues.type;
       if (!type) {
         alert("Please select a type first.");
         return;
       }
       try {
-        await axiosInstance.put(`/api/${type}/restoreAllFromTrash`);
-        alert("All items restored successfully!");
-        loadTrashItems();
+        await axiosInstance.put(`/api/${type}/restoreAllDeactivated`);
+        alert("All items reactivated successfully!");
+        loadDeactivatedItems();
       } catch (err) {
-        alert("Failed to restore all items.");
-        console.error(err);
-      }
-    }
-  };
-
-  const handleDeleteAll = async () => {
-    if (
-      confirm(
-        "Are you sure you want to permanently delete all items in the trash?"
-      )
-    ) {
-      const type = searchValues.type;
-      if (!type) {
-        alert("Please select a type first.");
-        return;
-      }
-      try {
-        await axiosInstance.delete(`/api/${type}/trash/clear`);
-        alert("All items permanently deleted!");
-        loadTrashItems();
-      } catch (err) {
-        alert("Failed to delete all items.");
+        alert("Failed to reactivate all items.");
         console.error(err);
       }
     }
@@ -257,8 +249,8 @@ const TrashManagement = () => {
       {!isAuthenticated() && (
         <div className="alert alert-danger mb-4" role="alert">
           <i className="bi bi-shield-exclamation me-2"></i>
-          <strong>Authentication Required:</strong> Please log in to view trash
-          data.
+          <strong>Authentication Required:</strong> Please log in to view
+          deactivated data.
           <a href="/login" className="alert-link ms-2">
             Log in now
           </a>
@@ -267,13 +259,16 @@ const TrashManagement = () => {
 
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h5 className="text-muted mb-0">Trash Management</h5>
+        <h5 className="text-muted mb-0">Deactivated Management</h5>
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-danger" onClick={handleDeleteAll}>
-            <i className="bi bi-trash3 me-2"></i> Delete All Permanently
+          <button
+            className="btn btn-outline-danger"
+            onClick={handleMoveAllDeactivatedToTrash}
+          >
+            <i className="bi bi-trash3 me-2"></i> Move All to Trash
           </button>
-          <button className="btn btn-success" onClick={handleRestoreAll}>
-            <i className="bi bi-arrow-counterclockwise me-2"></i> Restore All
+          <button className="btn btn-success" onClick={handleActivateAll}>
+            <i className="bi bi-play-circle me-2"></i> Reactivate All
           </button>
         </div>
       </div>
@@ -289,9 +284,10 @@ const TrashManagement = () => {
       />
 
       {/* Info */}
-      <div className="alert alert-info mb-4">
+      <div className="alert alert-warning mb-4">
         <i className="bi bi-info-circle me-2"></i>
-        Items in trash will be permanently deleted after 30 days.
+        Deactivated items are hidden from normal operations but can be
+        reactivated.
       </div>
 
       {/* Table */}
@@ -329,17 +325,17 @@ const TrashManagement = () => {
                     Please select a type to view
                   </td>
                 </tr>
-              ) : trashItems.length === 0 ? (
+              ) : deactivatedItems.length === 0 ? (
                 <tr>
                   <td
                     colSpan={tableColumns.length + 2}
                     className="text-center py-4 text-muted"
                   >
-                    Trash is empty
+                    No deactivated items found
                   </td>
                 </tr>
               ) : (
-                trashItems.map((row, rowIndex) => (
+                deactivatedItems.map((row, rowIndex) => (
                   <tr key={rowIndex}>
                     <td>
                       <input type="checkbox" className="form-check-input" />
@@ -355,25 +351,27 @@ const TrashManagement = () => {
                       <div className="d-flex gap-2">
                         <button
                           className="btn btn-outline-success btn-sm d-flex flex-column align-items-center px-3 py-2"
-                          onClick={() => handleRestore(row)}
-                          style={{ minWidth: "60px" }}
+                          onClick={() => handleReactivate(row)}
+                          style={{ minWidth: "70px" }}
                         >
                           <i
-                            className="bi bi-arrow-counterclockwise mb-1"
+                            className="bi bi-play-circle mb-1"
                             style={{ fontSize: "14px" }}
                           ></i>
-                          <span style={{ fontSize: "10px" }}>Restore</span>
+                          <span style={{ fontSize: "10px" }}>Reactivate</span>
                         </button>
                         <button
                           className="btn btn-outline-danger btn-sm d-flex flex-column align-items-center px-3 py-2"
-                          onClick={() => handlePermanentDelete(row)}
-                          style={{ minWidth: "60px" }}
+                          onClick={() => handleMoveToTrash(row)}
+                          style={{ minWidth: "100px" }}
                         >
                           <i
                             className="bi bi-trash3 mb-1"
                             style={{ fontSize: "14px" }}
                           ></i>
-                          <span style={{ fontSize: "10px" }}>Delete</span>
+                          <span style={{ fontSize: "10px" }}>
+                            Move to trash
+                          </span>
                         </button>
                       </div>
                     </td>
@@ -396,4 +394,4 @@ const TrashManagement = () => {
   );
 };
 
-export default TrashManagement;
+export default DeactivatedManagement;

@@ -3,236 +3,226 @@ import DashboardLayout from "../Layout/DashboardLayout";
 import SearchForm from "../Common/SearchForm";
 import DataTable from "../Common/DataTable";
 import Pagination from "../Common/Pagination";
-import districtData from "../../data/district.json";
+import axiosInstance from "../../api/axiosInstance";
+import { isAuthenticated } from "../../utils/authUtils";
+import { Link, useNavigate } from "react-router-dom";
 
 const ProjectManagement = () => {
+  const navigate = useNavigate();
   const [searchValues, setSearchValues] = useState({
     name: "",
-    status: "",
+    district: "",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [projects, setProjects] = useState([]);
+  const [totalProjects, setTotalProjects] = useState(0);
+  const [districts, setDistricts] = useState([]);
 
-  // Mock data - thay thế bằng API call thực tế
-  const mockProjects = [
-    {
-      id: "#AHGA68",
-      name: "Dự án siêu đô thị Vinhomes Smart City",
-      address: "Tây Mỗ, Nam Từ Liêm, Hà Nội",
-      district: "Nam Từ Liêm",
-      status: "Hiển thị",
-      updateAt: "20/03/2025",
-    },
-    {
-      id: "#AHGA69",
-      name: "Chung cư The Manor Central Park",
-      address: "Hoàng Mai, Hà Nội",
-      district: "Hoàng Mai",
-      status: "Ẩn",
-      updateAt: "19/03/2025",
-    },
-    {
-      id: "#AHGA70",
-      name: "Khu đô thị Ecopark",
-      address: "Văn Giang, Hưng Yên",
-      district: "Hà Đông",
-      status: "Hiển thị",
-      updateAt: "18/03/2025",
-    },
-    {
-      id: "#AHGA71",
-      name: "Times City Park Hill",
-      address: "Hai Bà Trưng, Hà Nội",
-      district: "Hai Bà Trưng",
-      status: "Hiển thị",
-      updateAt: "17/03/2025",
-    },
-    {
-      id: "#AHGA72",
-      name: "Royal City",
-      address: "Thanh Xuân, Hà Nội",
-      district: "Thanh Xuân",
-      status: "Ẩn",
-      updateAt: "16/03/2025",
-    },
-    {
-      id: "#AHGA73",
-      name: "Chung cư Goldmark City",
-      address: "Bắc Từ Liêm, Hà Nội",
-      district: "Bắc Từ Liêm",
-      status: "Hiển thị",
-      updateAt: "15/03/2025",
-    },
-    {
-      id: "#AHGA74",
-      name: "Khu đô thị Ciputra",
-      address: "Tây Hồ, Hà Nội",
-      district: "Tây Hồ",
-      status: "Ẩn",
-      updateAt: "14/03/2025",
-    },
-  ];
-
-  // Search form configuration - Thêm status search
   const searchFields = [
     {
       name: "name",
-      placeholder: "Tìm theo tên dự án...",
+      placeholder: "Search by project name...",
       colSize: 6,
       icon: "bi bi-search",
-      label: "Tên dự án",
+      label: "Project Name",
     },
     {
-      name: "status",
+      name: "district",
       type: "singleselect",
-      placeholder: "Chọn trạng thái...",
+      placeholder: "Select district...",
       colSize: 6,
-      label: "Trạng thái",
-      options: [
-        { value: "", label: "Tất cả trạng thái" },
-        { value: "Hiển thị", label: "👁️ Hiển thị" },
-        { value: "Ẩn", label: "🚫 Ẩn" },
-      ],
+      label: "District",
+      options: districts,
+      clearable: true,
     },
   ];
 
-  // Table columns configuration
   const tableColumns = [
     {
       key: "id",
-      label: "Project ID",
-      width: "120px",
+      label: "ID",
+      width: "50px",
       render: (value) => (
         <span className="text-primary fw-semibold">{value}</span>
       ),
     },
     {
       key: "name",
-      label: "Tên dự án",
-      width: "250px",
+      label: "Project Name",
+      width: "100px",
     },
     {
       key: "address",
-      label: "Địa chỉ",
+      label: "Address",
       width: "300px",
     },
     {
-      key: "status",
-      label: "Trạng thái",
-      width: "100px",
-      render: (value) => {
-        const statusClass =
-          value === "Hiển thị" ? "bg-success" : "bg-secondary";
-        const statusIcon =
-          value === "Hiển thị" ? "bi bi-eye" : "bi bi-eye-slash";
-        return (
-          <span
-            className={`badge ${statusClass} d-flex align-items-center gap-1`}
-            style={{ width: "fit-content" }}
-          >
-            <i className={statusIcon} style={{ fontSize: "12px" }}></i>
-            {value}
-          </span>
-        );
-      },
-    },
-    {
-      key: "updateAt",
-      label: "Cập nhật",
-      width: "120px",
+      key: "active",
+      label: "Status",
+      width: "90px",
+      render: () => (
+        <span
+          className="badge bg-success d-flex align-items-center gap-1"
+          style={{ width: "fit-content" }}
+        >
+          <i className="bi bi-eye" style={{ fontSize: "12px" }}></i>
+          Active
+        </span>
+      ),
     },
   ];
 
-  // Load data effect
   useEffect(() => {
-    loadProjects();
+    if (isAuthenticated()) {
+      loadProjects();
+      loadDistricts();
+    }
   }, [currentPage, searchValues]);
+
+  const loadDistricts = async () => {
+    try {
+      const response = await axiosInstance.get(
+        "/api/projects/statistics/district"
+      );
+      if (response.data && Array.isArray(response.data)) {
+        // Chuyển đổi từ format API thành format cho combobox
+        const districtOptions = response.data.map((item) => ({
+          value: item.district,
+          label: `${item.district}`,
+        }));
+        setDistricts(districtOptions);
+      }
+    } catch (error) {
+      console.error("Error loading districts:", error);
+      setDistricts([]);
+    }
+  };
+
+  const generateQuery = () => {
+    const conditions = [];
+
+    // Always filter active = 1
+    conditions.push("active==1");
+
+    if (searchValues.name) {
+      conditions.push(`name=="*${searchValues.name}*"`);
+    }
+
+    if (searchValues.district) {
+      conditions.push(`address=="*${searchValues.district}*"`);
+    }
+
+    return conditions.join(";");
+  };
 
   const loadProjects = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Filter projects based on search values
-      let filteredProjects = mockProjects;
-
-      // Filter by name
-      if (searchValues.name) {
-        filteredProjects = filteredProjects.filter((p) =>
-          p.name.toLowerCase().includes(searchValues.name.toLowerCase())
-        );
+      if (!isAuthenticated()) {
+        console.error("Authentication required");
+        setProjects([]);
+        setTotalProjects(0);
+        return;
       }
 
-      // Filter by status
-      if (searchValues.status) {
-        filteredProjects = filteredProjects.filter(
-          (p) => p.status === searchValues.status
-        );
-      }
+      const response = await axiosInstance.get("/api/projects/search?", {
+        params: {
+          page: currentPage - 1,
+          size: 10,
+          query: generateQuery(),
+        },
+      });
 
-      setProjects(filteredProjects);
+      if (response.data) {
+        setProjects(response.data.content);
+        setTotalProjects(response.data.totalElements);
+      } else {
+        setProjects([]);
+        setTotalProjects(0);
+      }
     } catch (error) {
       console.error("Error loading projects:", error);
+      setProjects([]);
+      setTotalProjects(0);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleSearchFieldChange = (fieldName, value) => {
+    setCurrentPage(1);
     setSearchValues((prev) => ({
       ...prev,
       [fieldName]: value,
     }));
   };
 
-  const handleSearch = (values) => {
-    setCurrentPage(1); // Reset to first page when searching
-    loadProjects();
+  const handleSearch = () => {
+    setCurrentPage(1);
   };
 
   const handleReset = () => {
     setSearchValues({
       name: "",
-      status: "",
+      district: "",
     });
     setCurrentPage(1);
   };
 
   const handleView = (project) => {
-    console.log("View project:", project);
-    // Navigate to project detail page
+    navigate(`/dashboard/projects/view/${project.id}`);
   };
 
-  const handleEdit = (project) => {
-    console.log("Edit project:", project);
-    // Navigate to project edit page
+  const handleDeactive = async (item) => {
+    if (confirm(`Are you sure you want to deactive "${item.name}"?`)) {
+      try {
+        await axiosInstance.delete(`/api/projects/deactivate/${item.id}`);
+        alert("Deactive successful!");
+        loadProjects();
+      } catch (err) {
+        alert("Deactive failed.");
+        console.error(err);
+      }
+    }
   };
 
-  const handleDelete = (project) => {
-    console.log("Delete project:", project);
-    // Show confirmation modal and delete
+  const handleMoveToTrash = async (item) => {
+    if (confirm(`Are you sure you want to move "${item.name}" to trash?`)) {
+      try {
+        await axiosInstance.delete(`/api/projects/moveToTrash/${item.id}`);
+        alert("Move to trash successful!");
+        loadProjects();
+      } catch (err) {
+        alert("Move to trash failed.");
+        console.error(err);
+      }
+    }
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  const handleAdd = () => {
-    console.log("Add new project");
-    // Navigate to add project page
-  };
-
   return (
-    <DashboardLayout title="PROJECT MANAGEMENT">
-      {/* Header with Add Button */}
+    <DashboardLayout>
+      {!isAuthenticated() && (
+        <div className="alert alert-danger mb-4" role="alert">
+          <i className="bi bi-shield-exclamation me-2"></i>
+          <strong>Authentication Required:</strong> Please log in to view
+          project data.
+          <a href="/login" className="alert-link ms-2">
+            Log in now
+          </a>
+        </div>
+      )}
+
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h5 className="text-muted mb-0">Quản lý dự án</h5>
-        <button
+        <h5 className="text-muted mb-0">Project Management</h5>
+        <Link
+          to="/dashboard/projects/create"
           className="btn btn-primary"
-          onClick={handleAdd}
           style={{
             borderRadius: "8px",
             fontFamily: "'Inter', sans-serif",
@@ -242,11 +232,10 @@ const ProjectManagement = () => {
           }}
         >
           <i className="bi bi-plus-circle me-2"></i>
-          Thêm dự án
-        </button>
+          Add Project
+        </Link>
       </div>
 
-      {/* Search Form */}
       <SearchForm
         fields={searchFields}
         values={searchValues}
@@ -256,27 +245,27 @@ const ProjectManagement = () => {
         isLoading={isLoading}
       />
 
-      {/* Data Table */}
       <DataTable
         columns={tableColumns}
         data={projects}
         onView={handleView}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDeactive={(row) => handleDeactive(row)}
+        onMoveToTrash={(row) => handleMoveToTrash(row)}
         isLoading={isLoading}
-        emptyMessage="Không tìm thấy dự án nào"
+        emptyMessage={
+          !isAuthenticated()
+            ? "Please log in to view project data"
+            : "No projects found"
+        }
       />
 
-      {/* Pagination */}
-      {projects.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(projects.length / 10)} // Use filtered results for pagination
-          totalItems={projects.length}
-          itemsPerPage={10}
-          onPageChange={handlePageChange}
-        />
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={Math.ceil(totalProjects / 10)}
+        totalItems={totalProjects}
+        itemsPerPage={10}
+        onPageChange={handlePageChange}
+      />
     </DashboardLayout>
   );
 };

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import { showToast } from "./Toast";
 
-const Navbar = ({ title = "Dashboard" }) => {
+const Navbar = ({ title = "" }) => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
 
@@ -42,7 +42,10 @@ const Navbar = ({ title = "Dashboard" }) => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg bg-white border-bottom px-4 py-3">
+    <nav
+      className="navbar navbar-expand-lg bg-white border-bottom px-4 py-3"
+      style={{ height: "74px" }}
+    >
       <div className="container-fluid">
         {/* Page Title */}
         <div className="navbar-brand mb-0">
@@ -85,7 +88,7 @@ const Navbar = ({ title = "Dashboard" }) => {
                   </div>
                   <small className="text-muted">Administrator</small>
                 </div>
-                <i className="bi bi-chevron-down ms-2 text-muted"></i>
+                {/* <i className="bi bi-chevron-down ms-2 text-muted"></i> */}
               </div>
             </button>
 
@@ -94,15 +97,15 @@ const Navbar = ({ title = "Dashboard" }) => {
               className="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2"
               style={{ minWidth: "200px" }}
             >
-              <li>
+              {/* <li>
                 <h6
                   className="dropdown-header"
                   style={{ fontFamily: "'Inter', sans-serif" }}
                 >
                   Tài khoản
                 </h6>
-              </li>
-              <li>
+              </li> */}
+              {/* <li>
                 <button className="dropdown-item d-flex align-items-center py-2">
                   <i className="bi bi-person me-3 text-muted"></i>
                   Hồ sơ cá nhân
@@ -113,10 +116,10 @@ const Navbar = ({ title = "Dashboard" }) => {
                   <i className="bi bi-gear me-3 text-muted"></i>
                   Cài đặt
                 </button>
-              </li>
-              <li>
+              </li> */}
+              {/* <li>
                 <hr className="dropdown-divider" />
-              </li>
+              </li> */}
               <li>
                 <button
                   className="dropdown-item d-flex align-items-center py-2 text-danger"
