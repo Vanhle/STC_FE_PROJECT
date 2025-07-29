@@ -81,7 +81,7 @@ const ApartmentManagement = () => {
     {
       key: "buildingName",
       label: "Building Name",
-      width: "180px",
+      width: "150px",
     },
     {
       key: "name",

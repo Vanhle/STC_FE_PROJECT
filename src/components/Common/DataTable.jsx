@@ -43,7 +43,9 @@ const DataTable = ({
                 <th
                   key={index}
                   scope="col"
+                  className="text-center"
                   style={{
+                    textAlign: "center",
                     fontFamily: "'Inter', sans-serif",
                     fontWeight: "600",
                     fontSize: "14px",
@@ -57,6 +59,7 @@ const DataTable = ({
                 scope="col"
                 style={{
                   width: "200px",
+                  textAlign: "center",
                   fontFamily: "'Inter', sans-serif",
                   fontWeight: "600",
                   fontSize: "14px",
@@ -97,6 +100,8 @@ const DataTable = ({
                     <td
                       key={colIndex}
                       style={{
+                        textAlign: "center",
+
                         fontFamily: "'Inter', sans-serif",
                         fontSize: "14px",
                       }}

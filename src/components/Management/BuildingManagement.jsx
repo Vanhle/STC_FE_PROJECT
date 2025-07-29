@@ -41,7 +41,7 @@ const BuildingManagement = () => {
     {
       key: "id",
       label: "ID",
-      width: "50px",
+      width: "70px",
       render: (value) => (
         <span className="text-primary fw-semibold">{value}</span>
       ),
@@ -49,23 +49,23 @@ const BuildingManagement = () => {
     {
       key: "projectName",
       label: "Project Name",
-      width: "100px",
+      width: "150px",
     },
     {
       key: "name",
       label: "Building Name",
-      width: "150px",
+      width: "200px",
     },
     {
       key: "numberOfBasements",
-      label: "Number of Basements",
-      width: "100px",
+      label: "Basements",
+      width: "80px",
       render: (value) => <span className="badge bg-secondary">{value}</span>,
     },
     {
       key: "numberOfLivingFloors",
-      label: "Number of Living Floors",
-      width: "80px",
+      label: "Living Floors",
+      width: "100px",
       render: (value) => <span className="badge bg-info">{value}</span>,
     },
     {

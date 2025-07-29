@@ -43,7 +43,7 @@ const ProjectManagement = () => {
     {
       key: "id",
       label: "ID",
-      width: "50px",
+      width: "70px",
       render: (value) => (
         <span className="text-primary fw-semibold">{value}</span>
       ),
@@ -51,12 +51,12 @@ const ProjectManagement = () => {
     {
       key: "name",
       label: "Project Name",
-      width: "100px",
+      width: "150px",
     },
     {
       key: "address",
       label: "Address",
-      width: "300px",
+      width: "430px",
     },
     {
       key: "active",
