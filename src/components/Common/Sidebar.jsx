@@ -29,6 +29,12 @@ const Sidebar = () => {
       label: "Apartment",
       active: location.pathname.includes("/apartments"),
     },
+     {
+      path: "/dashboard/users",
+      icon: "bi bi-person",
+      label: "User",
+      active: location.pathname.includes("/users"),
+    },
     {
       path: "/dashboard/trash",
       icon: "bi bi-trash",

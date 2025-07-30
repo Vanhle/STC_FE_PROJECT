@@ -24,6 +24,9 @@ import ViewBuilding from "./components/CRUD/Buildings/View";
 import CreateApartment from "./components/CRUD/Apartments/Create";
 import ViewApartment from "./components/CRUD/Apartments/View";
 import { StatisticsDashboard } from "./components/Charts";
+import UserManagement from "./components/Management/UserManagement";
+import CreateUser from "./components/CRUD/Users/Create";
+import ViewUser from "./components/CRUD/Users/View";
 import "./App.css";
 
 function App() {
@@ -153,6 +156,33 @@ function App() {
             element={
               <ProtectedRoute>
                 <ViewApartment />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/users"
+            element={
+              <ProtectedRoute>
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/users/create"
+            element={
+              <ProtectedRoute>
+                <CreateUser />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/users/view/:id"
+            element={
+              <ProtectedRoute>
+                <ViewUser />
               </ProtectedRoute>
             }
           />
