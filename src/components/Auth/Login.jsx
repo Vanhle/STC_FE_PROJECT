@@ -4,7 +4,7 @@ import AuthLayout from "../Layout/AuthLayout";
 import Input from "../Common/Input";
 import Button from "../Common/Button";
 import { showToast } from "../Common/Toast";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:8080/auth/login", {
+      const response = await axiosInstance.post("/auth/login", {
         username: formData.username,
         password: formData.password,
       });
