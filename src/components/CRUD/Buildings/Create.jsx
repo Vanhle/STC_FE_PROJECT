@@ -54,9 +54,7 @@ const CreateBuilding = () => {
           return;
         }
 
-        const response = await axiosInstance.get(
-          "/api/projects/search?query=active==1"
-        );
+        const response = await axiosInstance.get("/api/projects");
 
         // Lấy data từ response và chuyển đổi data thành array
         const projectData = response.data.data || response.data;
